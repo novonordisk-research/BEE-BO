@@ -1,11 +1,12 @@
 # BEE-BO
-Batched Energy-Entropy acquisition for Bayesian Optimization
+**Batched Energy-Entropy acquisition for Bayesian Optimization**
 
+![bee-bo small](https://github.com/fteufel/BEE-BO/assets/56223326/e7b9490c-cd65-4598-a55c-5023ced3ce33)
 
-![bee-bo](https://github.com/fteufel/BEE-BO/assets/56223326/f179d070-b089-4aeb-b2ce-dce9020ed63a|width=20)
 
 
 This repository provides a BoTorch/GPyTorch implementation of the BEE-BO acquisition function for Bayesian Optimization.
+
 
 
 ## Installation
