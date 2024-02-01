@@ -1,0 +1,9 @@
+
+botorch==0.9.4
+gpytorch==1.11
+keopscore==2.1.2
+pandas==2.0.1
+pykeops==2.1.2
+scipy==1.10.1
+torch==2.0.1
+tqdm

@@ -20,7 +20,7 @@ import time
 import random
 
 from beebo import BatchedEnergyEntropyBO
-from test_problems import EmbeddedHartmann
+from problems import EmbeddedHartmann
 torch.set_default_dtype(torch.float64)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -33,28 +33,12 @@ def get_test_problem(config):
         test_fn = test_functions.Hartmann(dim=config['dim'], negate=True)
     elif config['test_function'] == 'styblinskitang':
         test_fn = test_functions.StyblinskiTang(dim=config['dim'], negate=True)
-    elif config['test_function'] == 'michalewicz':
-        test_fn = test_functions.Michalewicz(dim=config['dim'], negate=True)
     elif config['test_function'] == 'rosenbrock':
         test_fn = test_functions.Rosenbrock(dim=config['dim'], negate=True)
     elif config['test_function'] == 'rastrigin':
         test_fn = test_functions.Rastrigin(dim=config['dim'], negate=True)
     elif config['test_function'] == 'ackley':
         test_fn = test_functions.Ackley(dim=config['dim'], negate=True)
-    elif config['test_function'] == 'dropwave':
-        test_fn = test_functions.DropWave(negate=True)
-        if config['dim'] != 2:
-            raise NotImplementedError('DropWave only implemented for dim=2')
-    elif config['test_function'] == 'eggholder':
-        test_fn = test_functions.EggHolder(negate=True)
-        if config['dim'] != 2:
-            raise NotImplementedError('EggHolder only implemented for dim=2')
-    elif config['test_function'] == 'holdertable':
-        test_fn = test_functions.HolderTable(negate=True)
-        if config['dim'] != 2:
-            raise NotImplementedError('HolderTable only implemented for dim=2')
-    elif config['test_function'] == 'griewank':
-        test_fn = test_functions.Griewank(dim=config['dim'], negate=True)
     elif config['test_function'] == 'levy':
         test_fn = test_functions.Levy(dim=config['dim'], negate=True)
     elif config['test_function'] == 'shekel':
@@ -89,7 +73,7 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
     while point_counter < n_points:
         train_x_raw = torch.rand(n_points, dim, generator=generator).to(torch.get_default_dtype())
 
-        # reject points that don't have min_dist to optima (euklidean distance)
+        # reject points that don't have min_dist to optima (euclidean distance)
         if optima is not None:
 
             dist = torch.cdist(optima_unit_cube, train_x_raw)

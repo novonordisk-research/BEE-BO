@@ -11,40 +11,34 @@ from copy import deepcopy
 
 
 class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
-    '''
-    The BEE-BO batch acquisition function. Jointly optimizes a batch of points by minimizing
-    the batch's free energy.
-    '''
+    r"""The BEE-BO batch acquisition function. Jointly optimizes a batch of points by minimizing
+
+    Args:
+        model: A fitted single-outcome GP model (must be in batch mode if
+            candidate sets X will be)
+        temperature: A scalar representing the temperature. 
+            higher temperature -> more exploration
+        kernel_amplitude: The amplitude of the kernel. Defaults to 1.0.
+            This is used to bring the temperature to a scale that is comparable to 
+            UCB's hyperparameter `beta`.
+        posterior_transform: A PosteriorTransform. If using a multi-output model,
+            a PosteriorTransform that transforms the multi-output posterior into a
+            single-output posterior is required.
+        maximize: If True, consider the problem a maximization problem.
+        logdet_method: The method to use to compute the log determinant of the
+            covariance matrix. One of "svd", "cholesky", "torch". Defaults to "svd".
+    """
     def __init__(
         self,
         model: Model,
         temperature: Union[float, np.ndarray, torch.Tensor],
         kernel_amplitude: float = 1.0,
-        summary_fn: str = "sum",
         posterior_transform: Optional[PosteriorTransform] = None,
         maximize: bool = True,
         logdet_method: str = 'svd',
         **kwargs,
     ) -> None:
-        r"""BOSS free energy batch acquisition function.
 
-        Args:
-            model: A fitted single-outcome GP model (must be in batch mode if
-                candidate sets X will be)
-            temperature: A scalar representing the temperature. 
-                higher temperature -> more exploration
-            kernel_amplitude: The amplitude of the kernel. Defaults to 1.0.
-                This is used to bring the temperature to a scale that is comparable to 
-                UCB's hyperparameter `beta`.
-            summary_op: One of "sum", "mean", "max" to compute the enthalpy term over
-                all candidates `X`. Defaults to "sum".
-            posterior_transform: A PosteriorTransform. If using a multi-output model,
-                a PosteriorTransform that transforms the multi-output posterior into a
-                single-output posterior is required.
-            maximize: If True, consider the problem a maximization problem.
-            logdet_method: The method to use to compute the log determinant of the
-                covariance matrix. One of "svd", "cholesky", "torch". Defaults to "svd".
-        """
         super().__init__(model=model, posterior_transform=posterior_transform)
  
         self.kernel_amplitude = kernel_amplitude
@@ -72,14 +66,7 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
         # if we make a copy in the forward pass only, we get a memory leak
         self.augmented_model = deepcopy(model)
 
-        
-        summary_fns = {
-            "sum": torch.sum,
-            "mean": torch.mean,
-            "max" : torch.max,
-            "min": torch.min,
-        }
-        self.summary_fn = summary_fns[summary_fn]
+        self.summary_fn = torch.sum
 
 
         # https://github.com/pytorch/pytorch/issues/22848#issuecomment-1032737956
@@ -87,8 +74,6 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
             raise NotImplementedError(f'logdet_method {logdet_method} not implemented')
         self.logdet_method = logdet_method
 
-        if self.individual_beta and summary_fn in ['max', 'min']:
-            raise NotImplementedError('individual_beta and summary_fn = max/min not supported')
         
 
     
@@ -241,7 +226,6 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
 
             # Enthalpy term.
             f_preds = self.model(X) # this gets p(f* | x*, X, y) with x* being test points.
-            posterior_cov = f_preds.covariance_matrix #  == C'_D
             posterior_means = f_preds.mean
 
             summary = self.summary_fn(posterior_means, dim=1) 
