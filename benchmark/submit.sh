@@ -1,6 +1,12 @@
 #!/bin/bash
 nvidia-smi
 
+
+# depending on your system, you might have to export CUDA paths to make KeOps work
+# export PATH=/home/platforms/x86_64/appl/cuda/11.7/bin:$PATH
+# export LD_LIBRARY_PATH=/home/platforms/x86_64/appl/cuda/11.7/lib64:$LD_LIBRARY_PATH
+# export LIBRARY_PATH=/home/platforms/x86_64/appl/cuda/11.7/lib64:$LIBRARY_PATH
+
 bsize=100
 last_round=10
 run_dir='runs'
@@ -34,7 +40,7 @@ do
     python3 redo_last_round_full_exploit.py --out_dir ${run_dir}_${seed}/${function}${dim}_q${bsize}/${fn}_explore_parameter10.0 --round_to_rerun $last_round
 
 
-    fn="boss"
+    fn="beebo"
     stdbuf -o0 -e0 python3 multi_round_experiment.py --test_function $function --dim $dim --n_start_points $bsize --batch_size $bsize --acq_fn $fn --opt torch --keops --n_rounds 10 --explore_parameter 0.05 --seed $seed
     stdbuf -o0 -e0 python3 multi_round_experiment.py --test_function $function --dim $dim --n_start_points $bsize --batch_size $bsize --acq_fn $fn --opt torch --keops --n_rounds 10 --explore_parameter 0.5 --seed $seed
     stdbuf -o0 -e0 python3 multi_round_experiment.py --test_function $function --dim $dim --n_start_points $bsize --batch_size $bsize --acq_fn $fn --opt torch --keops --n_rounds 10 --explore_parameter 5.0 --seed $seed
@@ -91,7 +97,7 @@ for ((i = 0; i < ${#functions[@]}; ++i)); do
 
 
 
-    fn="boss"
+    fn="beebo"
     stdbuf -o0 -e0 python3 multi_round_experiment.py --test_function $function --dim $dim --n_start_points $bsize --batch_size $bsize --acq_fn $fn --opt torch --keops --n_rounds 10 --explore_parameter 0.05 --seed $seed
     stdbuf -o0 -e0 python3 multi_round_experiment.py --test_function $function --dim $dim --n_start_points $bsize --batch_size $bsize --acq_fn $fn --opt torch --keops --n_rounds 10 --explore_parameter 0.5 --seed $seed
     stdbuf -o0 -e0 python3 multi_round_experiment.py --test_function $function --dim $dim --n_start_points $bsize --batch_size $bsize --acq_fn $fn --opt torch --keops --n_rounds 10 --explore_parameter 5.0 --seed $seed

@@ -46,13 +46,13 @@ runs = {
 
 def get_runs(run_name, k=0.1, suffix=''):
     all_dfs = []
-    for i in [0,1,2,3,4]:
+    for i in [0,]:#1,2,3,4]:
         files = [
-            f'../runs_{i}/{run_name}/boss_explore_parameter{k/2}/experiment_log{suffix}.csv',
-            f'../runs_{i}/{run_name}/qucb_explore_parameter{k}/experiment_log{suffix}.csv',
-            f'../runs_{i}/{run_name}/qei/experiment_log.csv',
-            f'../runs_{i}/{run_name}/thompson/experiment_log.csv',
-            f'../runs_{i}/{run_name}/random/experiment_log.csv',
+            f'./runs_{i}/{run_name}/beebo_explore_parameter{k/2}/experiment_log{suffix}.csv',
+            f'./runs_{i}/{run_name}/qucb_explore_parameter{k}/experiment_log{suffix}.csv',
+            f'./runs_{i}/{run_name}/qei/experiment_log.csv',
+            f'./runs_{i}/{run_name}/thompson/experiment_log.csv',
+            f'./runs_{i}/{run_name}/random/experiment_log.csv',
         ]
 
         for f in files:
@@ -99,14 +99,14 @@ for k in [0.1, 1.0, 10.0]:
 
     # normalize as % of random
     df_norm = df.copy()
-    df_norm['boss'] = df_norm['boss'] / df_norm['random']
+    df_norm['beebo'] = df_norm['beebo'] / df_norm['random']
     df_norm['qucb'] = df_norm['qucb'] / df_norm['random']
     df_norm['qei'] = df_norm['qei'] / df_norm['random']
     df_norm['thompson'] = df_norm['thompson'] / df_norm['random']
     df_norm['random'] = df_norm['random'] / df_norm['random'] # sanity check
 
 
-    df_norm.sort_values(['dim', 'problem'])[['dim', 'problem', 'boss', 'qucb', 'qei', 'thompson', 'random']].to_csv(f'batch_regret_{k}.csv', index=False)
+    df_norm.sort_values(['dim', 'problem'])[['dim', 'problem', 'beebo', 'qucb', 'qei', 'thompson', 'random']].to_csv(f'batch_regret_{k}.csv', index=False)
 
 
 
@@ -119,23 +119,21 @@ for k in [0.1, 1.0, 10.0]:
     for run in runs:
         df = get_runs(run, k=k, suffix='_round10_full_exploit')
 
-        best_so_far = df.groupby('round').max().cummax()['y']
+        best_so_far = df.groupby(['file', 'seed', 'round'])['y'].max().groupby(['file', 'seed']).cummax()#.cummax()['y']
 
         seed_max = df.loc[df['round']==0].groupby('seed')['y'].max()
         seed_max.name = 'minimum'
 
-        df = df.loc[df['round']==10]
 
-        best_so_far_df = pd.DataFrame({
-            'round': list(range(10)),
-            'best_so_far': best_so_far,
-        })
+        df = pd.DataFrame(best_so_far).reset_index().rename(columns={'y': 'best_so_far'})
 
         df = df.merge(seed_max, on='seed')
         df['maximimum'] = runs[run]
         #min-max normalize.
         df['best_so_far_normalized'] = (df['best_so_far'] - df['minimum']) / (df['maximimum'] - df['minimum'])
-        df_end = df.groupby('file')[['best_so_far', 'best_so_far_normalized', 'batch_sum']].agg(['mean', 'std'])#df.groupby('file')['best_so_far'].agg(['mean', 'std'])
+
+        df = df.loc[df['round']==10]
+        df_end = df.groupby('file')[['best_so_far', 'best_so_far_normalized']].agg(['mean', 'std'])#df.groupby('file')['best_so_far'].agg(['mean', 'std'])
         df_end['run'] = run
         all_results.append(df_end)
 
@@ -155,5 +153,5 @@ for k in [0.1, 1.0, 10.0]:
     df['problem'] = df['run'].str.split('(\d+)', expand=True)[0]
     df = df.sort_values(['dim', 'problem'])
     df['dim'] = df['run'].str.split('(\d+)', expand=True)[1]
-    df = df[['problem', 'dim',  'boss', 'qucb', 'qei', 'thompson']]
+    df = df[['problem', 'dim',  'beebo', 'qucb', 'qei', 'thompson']]
     df.to_csv(f'best_so_far_{k}.csv', index=False)

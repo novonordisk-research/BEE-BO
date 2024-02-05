@@ -237,7 +237,7 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
     train_y = standardize(train_y).to(device)
 
 
-    print('Setting up GP')
+    # print('Setting up GP')
     if config['keops']:
         kernel = get_matern_kernel_with_gamma_prior(
                     ard_num_dims=train_x.shape[-1], # BoTorch default: 1 length scale per input dim.
@@ -264,7 +264,7 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
         from botorch.optim.fit import fit_gpytorch_mll_torch
         mll = fit_gpytorch_mll(mll, optimizer=fit_gpytorch_mll_torch)
 
-    print(f'Fitted GP on data: {train_x.shape[0]} points, {train_x.shape[1]} dimensions. Memory usage {torch.cuda.memory_allocated()/1e9} GB')
+    # print(f'Fitted GP on data: {train_x.shape[0]} points, {train_x.shape[1]} dimensions. Memory usage {torch.cuda.memory_allocated()/1e9} GB')
     # save the model
     # saving as state_dict does not keep the train data, so we save the whole model.
     try:
@@ -294,7 +294,7 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
 
     new_x_raw = unnormalize(points, test_problem.bounds)
     new_y_raw = test_problem(new_x_raw).unsqueeze(-1)
-    print(f'Got {len(new_x_raw)}  new points.')
+    # print(f'Got {len(new_x_raw)}  new points.')
 
     # prevent a memory leak here
     del acq
@@ -367,14 +367,13 @@ def run_bo_rounds(config):
     train_x = normalize(train_x, test_problem.bounds)
     train_y = standardize(train_y)
 
-    print('Setting up GP')
+    # print('Setting up GP')
     if config['keops']:
         kernel = get_matern_kernel_with_gamma_prior(
                     ard_num_dims=train_x.shape[-1], # BoTorch default: 1 length scale per input dim.
                     batch_shape=train_x.shape[:-2],
                 )
         model = SingleTaskGP(train_x.detach(),train_y.detach(), covar_module=kernel)
-        print('Final GP - using KeOps')
     else:
         model = SingleTaskGP(train_x.detach(),train_y.detach())
     
@@ -393,7 +392,7 @@ def run_bo_rounds(config):
         from botorch.optim.fit import fit_gpytorch_mll_torch
         mll = fit_gpytorch_mll(mll, optimizer=fit_gpytorch_mll_torch)
 
-    print(f'Fitted GP on data: {train_x.shape[0]} points, {train_x.shape[1]} dimensions. Memory usage {torch.cuda.memory_allocated()/1e9} GB')
+    # print(f'Fitted GP on data: {train_x.shape[0]} points, {train_x.shape[1]} dimensions. Memory usage {torch.cuda.memory_allocated()/1e9} GB')
 
     try:
         torch.save(model, os.path.join(config['out_dir'], 'model_round_'+str(round+1)+'.pt'))
@@ -456,9 +455,6 @@ def main():
         if config['acq_fn'] in ['qei', 'random', 'thompson']:
             # explore parameter is not used. don't include in run_name
             run_name = f'{config["test_function"]}{config["dim"]}_q{config["batch_size"]}/{config["acq_fn"]}'
-        elif config['acq_fn'] in ['boss', 'multiboss'] and config['logdet_method']=='chebyshev':
-            run_name = f'{config["test_function"]}{config["dim"]}_q{config["batch_size"]}/stochastic{config["acq_fn"]}_explore_parameter{config["explore_parameter"]}'
-
         else:
             run_name = f'{config["test_function"]}{config["dim"]}_q{config["batch_size"]}/{config["acq_fn"]}_explore_parameter{config["explore_parameter"]}'
     else:
