@@ -63,3 +63,10 @@ Log determinants are computed using singular value decomposition (SVD) for numer
 
 BEE-BO requires temporarily adding the query data points as training data points to the GP model in the forward pass to compute the information gain. GPyTorch offers some functionality for that, such as `set_train_data` or `get_fantasy_model`. In our experiments with GPyTorch 1.11, both these approaches resulted in memory leaks when running with gradients enabled. As a workaround, we duplicate the GP model via deepcopy when initializing the acquisition function, and then set the train data of the duplicated GP before calling it to compute the augmented posterior. This, together with adding the posterior mean multiplied by 0 to the result, seems to be avoiding memory leaks for the current version.  
 Due to these workarounds, the forward method thus may look a bit convoluted. The methods `compute_energy` and `compute_entropy` are not used for above reasons, but show the core operations of the BEE-BO algorithm in a more readable way.
+
+### Patching the fantasy model
+
+This does not fix the memory issue, but it is necessary to achieve the desired speed-up from low rank updating the caches when using LOVE.
+
+https://github.com/cornellius-gp/gpytorch/pull/2494
+https://github.com/cornellius-gp/linear_operator/pull/93

@@ -7,8 +7,21 @@ import torch
 from gpytorch import settings
 import numpy as np
 from copy import deepcopy
+from .utils.cholesky_inference import GPPosteriorPredictor
+from linear_operator.utils.cholesky import psd_safe_cholesky
+from enum import Enum
 
+class LogDetMethod(Enum):
+    """Used to specify the method for computing the log determinant of the covariance matrices."""
+    SVD = "svd"
+    CHOLESKY = "cholesky"
+    TORCH = "torch"
 
+class AugmentedPosteriorMethod(Enum):
+    """Used to specify the method for augmenting the model with new points and computing the posterior covariance."""
+    NAIVE = "naive"
+    CHOLESKY = "cholesky"
+    GET_FANTASY_MODEL = "get_fantasy_model" # NOTE this isn't memory safe yet
 
 class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
     r"""The BEE-BO batch acquisition function. Jointly optimizes a batch of points by minimizing
@@ -27,6 +40,18 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
         maximize: If True, consider the problem a maximization problem.
         logdet_method: The method to use to compute the log determinant of the
             covariance matrix. One of "svd", "cholesky", "torch". Defaults to "svd".
+                - svd: Use the singular value decomposition to compute the log determinant.
+                - cholesky: Use the Cholesky decomposition to compute the log determinant.
+                - torch: Use the torch.logdet function to compute the log determinant.
+        augment_method: The method to use to augment the model with the new points
+            and computing the posterior covariance.
+            One of "naive", "cholesky", "get_fantasy_model". Defaults to "naive".
+                - naive: Adds the new points to the training data and recomputes the
+                    posterior from scratch.
+                - cholesky: Uses a low rank update to the Cholesky decomposition of
+                    the train-train covariance matrix to compute the posterior covariance.
+                - get_fantasy_model: Uses the get_fantasy_model method of GPyTorch
+                    to compute the posterior.
     """
     def __init__(
         self,
@@ -35,11 +60,15 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
         kernel_amplitude: float = 1.0,
         posterior_transform: Optional[PosteriorTransform] = None,
         maximize: bool = True,
-        logdet_method: str = 'svd',
+        logdet_method: Union[str, LogDetMethod] = "svd",
+        augment_method: Union[str, AugmentedPosteriorMethod] = "naive",
         **kwargs,
     ) -> None:
 
         super().__init__(model=model, posterior_transform=posterior_transform)
+
+        self.logdet_method = LogDetMethod[logdet_method.upper()] if isinstance(logdet_method, str) else logdet_method
+        self.augment_method = AugmentedPosteriorMethod[augment_method.upper()] if isinstance(augment_method, str) else augment_method
  
         self.kernel_amplitude = kernel_amplitude
  
@@ -62,17 +91,21 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
         
         self.maximize = maximize
 
-        # for augmentation, we keep a copy of the original model
-        # if we make a copy in the forward pass only, we get a memory leak
-        self.augmented_model = deepcopy(model)
+
+        if self.augment_method == AugmentedPosteriorMethod.CHOLESKY:
+            self.predictor = GPPosteriorPredictor(
+                model.covar_module,
+                model.mean_module,
+                model.likelihood.noise_covar,
+                train_X=model.train_inputs[0],
+                train_y=model.train_targets,
+            )
+        elif self.augment_method == AugmentedPosteriorMethod.NAIVE:
+            # for augmentation, we keep a copy of the original model
+            # if we make a copy in the forward pass only, we get a memory leak
+            self.augmented_model = deepcopy(model)
 
         self.summary_fn = torch.sum
-
-
-        # https://github.com/pytorch/pytorch/issues/22848#issuecomment-1032737956
-        if logdet_method not in ['svd', 'cholesky', 'torch']:
-            raise NotImplementedError(f'logdet_method {logdet_method} not implemented')
-        self.logdet_method = logdet_method
 
         
 
@@ -98,23 +131,35 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
             posterior_cov = f_preds.covariance_matrix #  == C'_D
             posterior_means = f_preds.mean
 
-            
-            # augment the training data with the test points
-            X_train_original = self.model.train_inputs[0]
-            Y_train_original = self.model.train_targets
-            X_train = X_train_original.expand(X.shape[0], X_train_original.shape[0], X_train_original.shape[1]) # (n_batch, n_train, dim)
-            Y_train = Y_train_original.expand(X.shape[0], Y_train_original.shape[0]) # (n_batch, n_train)
-            X_train_augmented = torch.cat([X_train, X], dim=1) # (n_batch, n_train + n_aug, dim)
-            Y_train_augmented = torch.cat([Y_train, torch.zeros_like(X[:,:,1])], dim=1) # (n_batch, n_train + n_aug)
-            self.augmented_model.set_train_data(X_train_augmented, Y_train_augmented, strict=False)
+            if self.augment_method == AugmentedPosteriorMethod.NAIVE:
+                # augment the training data with the test points
+                X_train_original = self.model.train_inputs[0]
+                Y_train_original = self.model.train_targets
+                X_train = X_train_original.expand(X.shape[0], X_train_original.shape[0], X_train_original.shape[1]) # (n_batch, n_train, dim)
+                Y_train = Y_train_original.expand(X.shape[0], Y_train_original.shape[0]) # (n_batch, n_train)
+                X_train_augmented = torch.cat([X_train, X], dim=1) # (n_batch, n_train + n_aug, dim)
+                Y_train_augmented = torch.cat([Y_train, torch.zeros_like(X[:,:,1])], dim=1) # (n_batch, n_train + n_aug)
+                self.augmented_model.set_train_data(X_train_augmented, Y_train_augmented, strict=False)
 
-            f_preds_augmented = self.augmented_model(X)
-            posterior_means_augmented = f_preds_augmented.mean
-            posterior_cov_augmented = f_preds_augmented.covariance_matrix
+                f_preds_augmented = self.augmented_model(X)
+                posterior_means_augmented = f_preds_augmented.mean
+                posterior_cov_augmented = f_preds_augmented.covariance_matrix
+
+            elif self.augment_method == AugmentedPosteriorMethod.CHOLESKY:
+                posterior_cov_augmented = self.predictor.augmented_covariance(X)
+                posterior_means_augmented = torch.zeros_like(posterior_means) #not used
+
+
+            elif self.augment_method == AugmentedPosteriorMethod.GET_FANTASY_MODEL:
+                fantasy_model = self.model.get_fantasy_model(X, torch.zeros_like(X[:,:,1]))
+                f_preds_augmented = fantasy_model(X)
+                posterior_means_augmented = f_preds_augmented.mean
+                posterior_cov_augmented = f_preds_augmented.covariance_matrix
 
 
 
-            if self.logdet_method == 'cholesky':
+
+            if self.logdet_method == LogDetMethod.CHOLESKY:
                 # use cholesky decomposition to compute logdet, fallback to svd if fails
                 with settings.cholesky_max_tries(1):
                     try:
@@ -125,34 +170,42 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
                         elif torch.isinf(posterior_cov_logdet).any():
                             raise Exception('inf in logdet')
                     except Exception as e:
+                        print(f'Cholesky failed: {e}')
                         _, s, _ = torch.svd(posterior_cov)
                         posterior_cov_logdet = torch.sum(torch.log(s), dim=-1)
 
                     try:
-                        posterior_cov_augmented_logdet = f_preds_augmented.lazy_covariance_matrix.logdet()
+                        if self.augment_method == AugmentedPosteriorMethod.CHOLESKY:
+                            # there is no lazy_covariance_matrix if we use cholesky augmentation
+                            chol = psd_safe_cholesky(posterior_cov_augmented)
+                            posterior_cov_augmented_logdet = chol.diagonal(dim1=-2, dim2=-1).log().sum(-1) * 2
+                            # posterior_cov_augmented_logdet = torch.logdet(posterior_cov_augmented)
+                        else:
+                            posterior_cov_augmented_logdet = f_preds_augmented.lazy_covariance_matrix.logdet()
                         # also trigger exception when any nan in result
                         if torch.isnan(posterior_cov_augmented_logdet).any():
                             raise Exception('nan in logdet')
                         elif torch.isinf(posterior_cov_augmented_logdet).any():
                             raise Exception('inf in logdet')
                     except Exception as e:
+                        print(f'Cholesky failed: {e}')
                         _, s, _ = torch.svd(posterior_cov_augmented)
                         posterior_cov_augmented_logdet = torch.sum(torch.log(s), dim=-1)
 
-            elif self.logdet_method == 'svd':
+            elif self.logdet_method == LogDetMethod.SVD:
                 # use svd to compute logdet
-                _, s, _ = torch.svd(posterior_cov_augmented)
+                s = torch.linalg.svdvals(posterior_cov_augmented)
                 # s[s==0] = 1e-20 # avoid nan # same but autograd friendly
                 s = torch.where(s==0, torch.ones_like(s) * 1e-20, s)
                 posterior_cov_augmented_logdet = torch.sum(torch.log(s), dim=-1)
-                _, s, _ = torch.svd(posterior_cov)
+                s = torch.linalg.svdvals(posterior_cov)
                 s = torch.where(s==0, torch.ones_like(s) * 1e-20, s) # avoid nan
                 posterior_cov_logdet = torch.sum(torch.log(s), dim=-1)
 
-            elif self.logdet_method == 'torch':
-                posterior_cov = posterior_cov + torch.eye(posterior_cov.shape[-1], device=posterior_cov.device) * 1e-03
+            elif self.logdet_method == LogDetMethod.TORCH:
+                posterior_cov = posterior_cov + torch.eye(posterior_cov.shape[-1], device=posterior_cov.device) * 1e-06
                 posterior_cov_logdet =  torch.logdet(posterior_cov)    
-                posterior_cov_augmented = posterior_cov_augmented + torch.eye(posterior_cov_augmented.shape[-1], device=posterior_cov_augmented.device) * 1e-03
+                posterior_cov_augmented = posterior_cov_augmented + torch.eye(posterior_cov_augmented.shape[-1], device=posterior_cov_augmented.device) * 1e-0
                 posterior_cov_augmented_logdet = torch.logdet(posterior_cov_augmented)
             else:
                 raise NotImplementedError(f'logdet method {self.logdet_method} not implemented')
@@ -205,6 +258,12 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
             return acq_value
 
 
+    def _get_augmented_covariance_logdet_lowrank_update(self, X: torch.Tensor):
+
+        # access the train_train_covar cache from self.model
+
+        # TODO check whether we are working with LOVE or not.
+        pass
 
 
     # NOTE the methods below are only there for better readability.
