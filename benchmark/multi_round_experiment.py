@@ -21,6 +21,7 @@ import random
 
 from beebo import BatchedEnergyEntropyBO
 from problems import EmbeddedHartmann
+from utils.kriging_believer import get_candidates_kriging_believer
 torch.set_default_dtype(torch.float64)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -93,9 +94,9 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
 
 
 
-def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None):
+def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None, bounds=None):
     if config['acq_fn'] == 'beebo':
-        acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'])
+        acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'], custom_inference=config['custom_inference'])
     elif config['acq_fn'] == 'qucb':
         from botorch.sampling import SobolQMCNormalSampler
         from botorch.acquisition import qUpperConfidenceBound
@@ -109,6 +110,17 @@ def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None):
         sampler = SobolQMCNormalSampler(1024)
         best_f = model.train_targets.max().item()
         acq = qLogExpectedImprovement(model, best_f, sampler)
+    elif config['acq_fn'] == 'gibbon':
+        from botorch.acquisition.max_value_entropy_search import qLowerBoundMaxValueEntropy
+        candidate_set = torch.rand(
+            config['gibbon_n_candidates'], config['dim'], device=model.train_inputs[0].device, dtype=model.train_inputs[0].dtype)
+        acq = qLowerBoundMaxValueEntropy(model, candidate_set)
+    elif config['acq_fn'] == 'modifiedgibbon':
+        from utils.modified_gibbon import qModifiedLowerBoundMaxValueEntropy
+        candidate_set = torch.rand(
+            config['gibbon_n_candidates'], config['dim'], device=model.train_inputs[0].device, dtype=model.train_inputs[0].dtype)
+        acq = qModifiedLowerBoundMaxValueEntropy(model, candidate_set)
+        acq.set_batch_size(config['batch_size'])
     else:
         raise NotImplementedError()
 
@@ -151,7 +163,7 @@ def get_candidates(acq, config, bounds, initial_conditions=None):
             gen_candidates= gen_candidates,
             batch_initial_conditions=initial_conditions,
             generator = generator,
-            # seed=config['seed']
+            sequential= True if config['acq_fn'] in  ['gibbon', 'modifiedgibbon'] else False,
             )
             
 
@@ -286,8 +298,11 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
     elif config['acq_fn'] == 'thompson':
         acq = None
         points = get_thompson_candidates(model, config, n_candidates=config['n_thompson_base_samples'])
+    elif config['acq_fn'] == 'krigingbeliever':
+        acq = None
+        points, values = get_candidates_kriging_believer(model, config, bounds)
     else:
-        acq = get_acquisition_function(config['acq_fn'], model, config, model.covar_module.outputscale.item())
+        acq = get_acquisition_function(config['acq_fn'], model, config, model.covar_module.outputscale.item(), bounds)
 
         points, value = get_candidates(acq, config, bounds)
 
@@ -337,7 +352,7 @@ def run_bo_rounds(config):
         experiment_log.append(point)
         
     
-
+    start_time = time.time()
     for round in tqdm(range(config['n_rounds'])):
 
         
@@ -404,7 +419,7 @@ def run_bo_rounds(config):
         torch.save([model.train_inputs, model.train_targets], os.path.join(config['out_dir'], 'model_round_'+str(round+1)+'_train_data.pt'))
 
 
-
+    config['run_time'] = time.time() - start_time
 
     # make a dataframe from the log
     # save the dataframe to a csv
@@ -412,7 +427,7 @@ def run_bo_rounds(config):
     df = pd.DataFrame(experiment_log)
     df.to_csv(os.path.join(config['out_dir'], 'experiment_log.csv'))
     with open(os.path.join(config['out_dir'], 'config.json'), 'w') as f:
-        json.dump(config, f)
+        json.dump(config, f, indent=4)
 
 
 
@@ -436,6 +451,8 @@ def main():
         'init_min_distance': 0.5,
         'logdet_method': 'svd', 
         'n_thompson_base_samples': 10000,
+        'gibbon_n_candidates': 100000,
+        'custom_inference': False,
     }
     skip=True # skip if output file already exists.
 
@@ -452,7 +469,7 @@ def main():
     random.seed(args.seed)
 
     if config['run_name'] is None:
-        if config['acq_fn'] in ['qei', 'random', 'thompson']:
+        if config['acq_fn'] in ['qei', 'random', 'thompson', 'gibbon', 'modifiedgibbon', 'krigingbeliever', 'jes', 'sequential_thompson']:
             # explore parameter is not used. don't include in run_name
             run_name = f'{config["test_function"]}{config["dim"]}_q{config["batch_size"]}/{config["acq_fn"]}'
         else:
