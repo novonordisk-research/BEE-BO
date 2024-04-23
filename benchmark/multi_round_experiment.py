@@ -97,6 +97,17 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
 def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None, bounds=None):
     if config['acq_fn'] == 'beebo':
         acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'], custom_inference=config['custom_inference'])
+    elif config['acq_fn'] == 'maxbeebo':
+        acq = BatchedEnergyEntropyBO(
+            model, 
+            temperature=config['explore_parameter'], 
+            kernel_amplitude=kernel_amplitude, 
+            logdet_method=config['logdet_method'], 
+            custom_inference=config['custom_inference'], 
+            energy_function='softmax',
+            f_max = model.train_targets.max().item(),
+            softmax_beta = 1/(kernel_amplitude **(1/2))
+        )
     elif config['acq_fn'] == 'qucb':
         from botorch.sampling import SobolQMCNormalSampler
         from botorch.acquisition import qUpperConfidenceBound
@@ -453,6 +464,7 @@ def main():
         'n_thompson_base_samples': 10000,
         'gibbon_n_candidates': 100000,
         'custom_inference': False,
+        'run_dir_prefix': 'runs',
     }
     skip=True # skip if output file already exists.
 
@@ -477,7 +489,7 @@ def main():
     else:
         run_name = config['run_name']
 
-    config['out_dir'] = f'runs_{config["seed"]}/{run_name}'
+    config['out_dir'] = f'{config["run_dir_prefix"]}_{config["seed"]}/{run_name}'
 
 
     print(config['out_dir'])
