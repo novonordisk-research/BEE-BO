@@ -46,12 +46,16 @@ runs = {
 
 def get_runs(run_name, k=0.1, suffix=''):
     all_dfs = []
-    for i in [0,]:#1,2,3,4]:
+    for i in [0,1,2,3,4]:
         files = [
             f'./runs_{i}/{run_name}/beebo_explore_parameter{k/2}/experiment_log{suffix}.csv',
+            f'./runs_{i}/{run_name}/maxbeebo_explore_parameter{k/2}/experiment_log{suffix}.csv',
             f'./runs_{i}/{run_name}/qucb_explore_parameter{k}/experiment_log{suffix}.csv',
             f'./runs_{i}/{run_name}/qei/experiment_log.csv',
             f'./runs_{i}/{run_name}/thompson/experiment_log.csv',
+            f'./runs_{i}/{run_name}/kriging_believer/experiment_log.csv',
+            f'./runs_{i}/{run_name}/gibbon/experiment_log.csv',
+            f'./runs_{i}/{run_name}/modifiedgibbon/experiment_log.csv',
             f'./runs_{i}/{run_name}/random/experiment_log.csv',
         ]
 
@@ -97,16 +101,21 @@ for k in [0.1, 1.0, 10.0]:
     df['problem'] = df['run'].str.split('(\d+)', expand=True)[0]
 
 
+
     # normalize as % of random
     df_norm = df.copy()
     df_norm['beebo'] = df_norm['beebo'] / df_norm['random']
+    df_norm['maxbeebo'] = df_norm['maxbeebo'] /df_norm['random']
     df_norm['qucb'] = df_norm['qucb'] / df_norm['random']
     df_norm['qei'] = df_norm['qei'] / df_norm['random']
     df_norm['thompson'] = df_norm['thompson'] / df_norm['random']
+    df_norm['krigingbeliever'] = df_norm['krigingbeliever'] / df_norm['random']
+    df_norm['gibbon'] = df_norm['gibbon'] / df_norm['random']
+    df_norm['modifiedgibbon'] = df_norm['modifiedgibbon'] / df_norm['random']
     df_norm['random'] = df_norm['random'] / df_norm['random'] # sanity check
 
 
-    df_norm.sort_values(['dim', 'problem'])[['dim', 'problem', 'beebo', 'qucb', 'qei', 'thompson', 'random']].to_csv(f'batch_regret_{k}.csv', index=False)
+    df_norm.sort_values(['dim', 'problem'])[['dim', 'problem', 'beebo', 'maxbeebo', 'qucb', 'qei', 'thompson', 'krigingbeliever', 'gibbon', 'modifiedgibbon', 'random']].to_csv(f'batch_regret_{k}.csv', index=False)
 
 
 
@@ -146,6 +155,7 @@ for k in [0.1, 1.0, 10.0]:
     df =  df.reset_index()
     df['algo'] = df['file'].apply(lambda x: x.split('_')[0])
 
+
     df = df.pivot(index='run', columns='algo', values='text')
     df = df.reset_index()
 
@@ -153,5 +163,5 @@ for k in [0.1, 1.0, 10.0]:
     df['problem'] = df['run'].str.split('(\d+)', expand=True)[0]
     df = df.sort_values(['dim', 'problem'])
     df['dim'] = df['run'].str.split('(\d+)', expand=True)[1]
-    df = df[['problem', 'dim',  'beebo', 'qucb', 'qei', 'thompson']]
+    df = df[['problem', 'dim',  'beebo', 'maxbeebo', 'qucb', 'qei', 'thompson', 'krigingbeliever', 'gibbon', 'modifiedgibbon']]
     df.to_csv(f'best_so_far_{k}.csv', index=False)

@@ -1,16 +1,21 @@
+import warnings
+from copy import deepcopy
+from enum import Enum
+from typing import Optional, Tuple, Union
+
+import numpy as np
+import torch
 from botorch.acquisition.analytic import AnalyticAcquisitionFunction
 from botorch.acquisition.objective import PosteriorTransform
+from botorch.exceptions import BotorchWarning
 from botorch.models.model import Model
-from botorch.utils import t_batch_mode_transform
-from typing import Union, Optional, Tuple
-import torch
+from botorch.utils.transforms import t_batch_mode_transform, concatenate_pending_points
 from gpytorch import settings
 from gpytorch.distributions import MultivariateNormal
-import numpy as np
-from copy import deepcopy
-from .utils.cholesky_inference import GPPosteriorPredictor
 from linear_operator.utils.cholesky import psd_safe_cholesky
-from enum import Enum
+
+from .utils.cholesky_inference import GPPosteriorPredictor
+
 
 class LogDetMethod(Enum):
     """Used to specify the method for computing the log determinant of the covariance matrices."""
@@ -25,25 +30,41 @@ class AugmentedPosteriorMethod(Enum):
     GET_FANTASY_MODEL = "get_fantasy_model" # NOTE this isn't memory safe yet
     # TODO replace with a wrapper for GET_FANTASY_STRATEGY --> skip the internal model deepcopy
 
-from linear_operator.operators import DiagLinearOperator, LowRankRootLinearOperator
+from linear_operator.operators import (DiagLinearOperator,
+                                       LowRankRootLinearOperator)
 from linear_operator.utils.cholesky import psd_safe_cholesky
 
 
-def stable_softmax(x: torch.Tensor, beta: float, f_max: float = None):
+def stable_softmax(x: torch.Tensor, beta: float, f_max: float = None, eps=1e-6, alpha=0.05):
     
     if f_max is None:
         x_scaled = beta * x
         z = x_scaled - x_scaled.max(dim=-1, keepdim=True).values # (n x q+1)
         z_exp = z.exp()
         w = z_exp / z_exp.sum(dim=-1, keepdim=True) # (n x q)
+
+        # ref_denominator = z_exp.sum(dim=-1, keepdim=True)
+        # ref_weights = z_exp / z_exp.sum(dim=-1, keepdim=True)
     else:
-        # TODO untested
-        x = torch.cat([x, torch.ones(x.shape[0], 1, device=x.device)*f_max], dim=-1)
         x_scaled = beta * x
-        z = x_scaled - x_scaled.max(dim=-1, keepdim=True).values # (n x q+1)
-        z_exp = z.exp()
-        w = z_exp[:,:-1] / z_exp.sum(dim=-1, keepdim=True) # (n x q)
-        
+        beta_delta_x = x_scaled - x_scaled.max(dim=-1, keepdim=True).values
+        beta_delta_fmax = beta * f_max - x_scaled.max(dim=-1, keepdim=True).values
+        # import ipdb; ipdb.set_trace()
+        denominator = beta_delta_x.exp().sum(dim=-1, keepdim=True)
+
+        # get min of
+        # 1/(1-alpha))* denominator and
+        # beta_delta_fmax.exp()
+        g = torch.stack([denominator * (1-alpha)/alpha, beta_delta_fmax.exp()], dim=-1)
+        g = g.min(dim=-1).values
+
+        w = beta_delta_x.exp() / (denominator+g)
+        # w_bad = beta_delta_x.exp() / (denominator+beta_delta_fmax.exp())
+
+        # d_tilde = 1./(1+ (beta_delta_fmax - denominator.log()).exp()) 
+        # d_tilde = d_tilde + eps
+
+        # w = d_tilde * (beta_delta_x - denominator.log()).exp()
 
     return w
 
@@ -122,8 +143,7 @@ def softmax_expectation_a_is_mean(mvn, softmax_beta, f_max=None):
     return shortcut_expectation
 
 def softmax_expectation(mvn: MultivariateNormal, a: torch.Tensor, softmax_beta: float, f_max: float = None):
-    f_max = None
-    # softmax_beta = 10
+
     if False:
 
         means = mvn.mean # (n x q)
@@ -261,9 +281,10 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
     def __init__(
         self,
         model: Model,
-        temperature: Union[float, np.ndarray, torch.Tensor],
+        temperature: float,
         kernel_amplitude: float = 1.0,
         posterior_transform: Optional[PosteriorTransform] = None,
+        X_pending: Optional[torch.Tensor] = None,
         maximize: bool = True,
         logdet_method: Union[str, LogDetMethod] = "svd",
         augment_method: Union[str, AugmentedPosteriorMethod] = "naive",
@@ -283,26 +304,11 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
  
         self.kernel_amplitude = kernel_amplitude
  
-        temperature = temperature * (self.kernel_amplitude)**(1/2)
-        if type(temperature) == float and temperature == 0:
-            temperature = 1e-10
-        elif type(temperature) in [np.ndarray, torch.Tensor] and any(temperature == 0):
-            temperature[temperature == 0] = 1e-10
-
-        # define beta=1/T, push to device and register as buffer
-        self.register_buffer("beta", torch.as_tensor(1/temperature).to( model.covar_module.raw_outputscale.device))
-
-        if isinstance(temperature, np.ndarray) or isinstance(temperature, torch.Tensor):
-            if self.energy_function == EnergyFunction.SOFTMAX:
-                raise ValueError("Softmax energy function only supports scalar temperature.")
-            self.individual_beta = True #beta is an array of length q
-            # unless the array contains exactly one element
-            if len(temperature) == 1:
-                self.individual_beta = False 
-        else:
-            self.individual_beta = False # beta is a scalar
+        self.temperature = temperature * (self.kernel_amplitude)**(1/2)
         
         self.maximize = maximize
+
+        self.set_X_pending(X_pending)
 
 
         if self.augment_method == AugmentedPosteriorMethod.CHOLESKY:
@@ -322,7 +328,7 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
 
         
 
-    
+    @concatenate_pending_points    
     @t_batch_mode_transform()
     def forward(self, X: torch.Tensor) -> torch.Tensor:
         """Evaluate the free energy of the candidate set X.
@@ -437,51 +443,54 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
             information_gain = 0.5* (posterior_cov_logdet - posterior_cov_augmented_logdet)
 
             
-            if self.individual_beta:
-                # multiply each of the posterior means with its own beta
-                # posterior_means is (num_restarts, q) --> broadcast over num_restarts
-                posterior_means = posterior_means * self.beta
 
-                summary_posterior = self.summary_fn(posterior_means, dim=1)
-                summary_augmented = self.summary_fn(posterior_means_augmented, dim=1) 
+            if self.energy_function == EnergyFunction.SUM:
+                summary_posterior = torch.sum(posterior_means, dim=1)
+                summary_augmented = torch.sum(posterior_means_augmented, dim=1)
+            elif self.energy_function == EnergyFunction.SOFTMAX:
+                summary_posterior = softmax_expectation(f_preds, a=f_preds.mean, softmax_beta=self.softmax_beta, f_max=self.f_max)
+                summary_posterior = summary_posterior * f_preds.mean.shape[1] # multiply by q to make it scale linearly with q, like logdet
 
-                if self.maximize:
-                    # maximize fn value + gain
-                    acq_value =  summary_posterior + information_gain
-                else:
-                    acq_value =  (-1) * summary_posterior + information_gain
+                # this is a dummy thing for memory leaks
+                summary_augmented = torch.sum(posterior_means_augmented, dim=1)
 
-                acq_value += summary_augmented*0 # this prevents memory leaks.
-
+        
+            if self.maximize:
+                # maximize fn value + gain
+                acq_value =  summary_posterior + self.temperature * information_gain
             else:
+                acq_value =  (-1) * summary_posterior + self.temperature * information_gain
 
-                if self.energy_function == EnergyFunction.SUM:
-                    summary_posterior = torch.sum(posterior_means, dim=1)
-                    summary_augmented = torch.sum(posterior_means_augmented, dim=1)
-                elif self.energy_function == EnergyFunction.SOFTMAX:
-                    summary_posterior = softmax_expectation(f_preds, a=f_preds.mean, softmax_beta=self.softmax_beta, f_max=self.f_max)
-                    summary_posterior = summary_posterior * f_preds.mean.shape[1] # multiply by q to make it scale linearly with q, like logdet
-
-                    # this is a dummy thing for memory leaks
-                    summary_augmented = torch.sum(posterior_means_augmented, dim=1)
-
-            
-                if self.maximize:
-                    # maximize fn value + gain
-                    acq_value =  self.beta * summary_posterior + information_gain
-                else:
-                    acq_value =  (-1) * self.beta * summary_posterior + information_gain
-
-                acq_value += summary_augmented*0 # this prevents memory leaks.
+            acq_value += summary_augmented*0 # this prevents memory leaks.
 
             # print('acq', 'info gain', 'expect.', 'sum','max')
             # print_array = torch.stack([acq_value, information_gain, summary_posterior, posterior_means.sum(1), posterior_means.max(1).values], dim=1) # (num_restarts, 5)
-            # print_array = np.array_str(print_array.detach().cpu().numpy(), precision=3, suppress_small=True)
+            # print_array = np.array_str(print_array.detach().cpu().numpy().mean(axis=0), precision=3, suppress_small=True)
             # print(print_array)
 
 
             return acq_value
 
+    # NOTE the base AnalyticAcquisitionFunction class does not support X_pending
+    def set_X_pending(self, X_pending: Optional[torch.Tensor] = None) -> None:
+        r"""Informs the acquisition function about pending design points.
+
+        Args:
+            X_pending: `n x d` Tensor with `n` `d`-dim design points that have
+                been submitted for evaluation but have not yet been evaluated.
+        """
+        if X_pending is not None:
+            # when doing sequential, stuff will have gradients. no point in
+            # warning about it.
+            # if X_pending.requires_grad:
+            #     warnings.warn(
+            #         "Pending points require a gradient but the acquisition function"
+            #         " will not provide a gradient to these points.",
+            #         BotorchWarning,
+            #     )
+            self.X_pending = X_pending.detach().clone()
+        else:
+            self.X_pending = X_pending
 
 
     # NOTE the methods below are only there for better readability.
