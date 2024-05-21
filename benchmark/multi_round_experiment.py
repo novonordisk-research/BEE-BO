@@ -20,7 +20,7 @@ import time
 import random
 
 from beebo import BatchedEnergyEntropyBO
-from problems import EmbeddedHartmann
+from problems import EmbeddedHartmann, RobotPushing, Rover
 from utils.kriging_believer import get_candidates_kriging_believer
 torch.set_default_dtype(torch.float64)
 
@@ -54,6 +54,14 @@ def get_test_problem(config):
         test_fn = EmbeddedHartmann(dim=config['dim'], dim_hartmann=6, negate=True)
     elif config['test_function'] == 'powell':
         test_fn = test_functions.Powell(dim=config['dim'], negate=True)
+    elif config['test_function'] == 'robotpushing':
+        if config['dim'] != 14:
+            raise NotImplementedError('Robot pushing only implemented for dim=14')
+        test_fn = RobotPushing(negate=True) # returns distance --> negate to minimize
+    elif config['test_function'] == 'rover':
+        if config['dim'] != 60:
+            raise NotImplementedError('Rover is only implemented for dim=60')
+        test_fn = Rover(negate=True) # returns cost --> negate to minimize
     else:
         raise NotImplementedError(config['test_function'])
 
@@ -68,7 +76,7 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
     point_counter = 0
 
     optima_unit_cube = normalize(optima, bounds) if optima is not None else None
-    optima_unit_cube = optima_unit_cube.to(torch.get_default_dtype())
+    optima_unit_cube = optima_unit_cube.to(torch.get_default_dtype()) if optima_unit_cube is not None else None
 
     all_train_x_raw = torch.zeros(n_points, dim).to(torch.get_default_dtype())
     while point_counter < n_points:
@@ -97,6 +105,8 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
 def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None, bounds=None):
     if config['acq_fn'] == 'beebo':
         acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'], custom_inference=config['custom_inference'])
+    elif config['acq_fn'] == 'sequentialbeebo':
+        acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'], custom_inference=config['custom_inference'])
     elif config['acq_fn'] == 'maxbeebo':
         acq = BatchedEnergyEntropyBO(
             model, 
@@ -111,14 +121,14 @@ def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None, bound
     elif config['acq_fn'] == 'qucb':
         from botorch.sampling import SobolQMCNormalSampler
         from botorch.acquisition import qUpperConfidenceBound
-        sampler = SobolQMCNormalSampler(1024)
+        sampler = SobolQMCNormalSampler(torch.Size([1024])) # NOTE botorch 0.11.0 needs torch.size
         # NOTE we **2 the explore_param because we want to control the internal beta.sqrt() - 
         # see section in the paper on equivalence of BEE-BO temperature and UCB sqrt(beta)
         acq = qUpperConfidenceBound(model, config['explore_parameter']**2, sampler)
     elif config['acq_fn'] == 'qei':
         from botorch.sampling import SobolQMCNormalSampler
         from botorch.acquisition import qLogExpectedImprovement
-        sampler = SobolQMCNormalSampler(1024)
+        sampler = SobolQMCNormalSampler(torch.Size([1024])) # NOTE botorch 0.11.0 needs torch.size
         best_f = model.train_targets.max().item()
         acq = qLogExpectedImprovement(model, best_f, sampler)
     elif config['acq_fn'] == 'gibbon':
@@ -174,7 +184,7 @@ def get_candidates(acq, config, bounds, initial_conditions=None):
             gen_candidates= gen_candidates,
             batch_initial_conditions=initial_conditions,
             generator = generator,
-            sequential= True if config['acq_fn'] in  ['gibbon', 'modifiedgibbon'] else False,
+            sequential= True if config['acq_fn'] in  ['gibbon', 'modifiedgibbon', 'sequentialbeebo'] else False,
             )
             
 
@@ -269,7 +279,6 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
         model = SingleTaskGP(train_x.detach(),train_y.detach(), covar_module=kernel)
     else:
         model = SingleTaskGP(train_x.detach(),train_y.detach())
-    gpytorch.settings.max_cholesky_size(2)
 
 
     if torch.get_default_dtype() == torch.float64:
@@ -282,10 +291,11 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
 
     try:
         mll = fit_gpytorch_mll(mll)
-    except RuntimeError as e:
+    except: #RuntimeError as e
         print('Fitting GP failed. Retrying. with torch')
         from botorch.optim.fit import fit_gpytorch_mll_torch
         mll = fit_gpytorch_mll(mll, optimizer=fit_gpytorch_mll_torch)
+    
 
     # print(f'Fitted GP on data: {train_x.shape[0]} points, {train_x.shape[1]} dimensions. Memory usage {torch.cuda.memory_allocated()/1e9} GB')
     # save the model
