@@ -5,21 +5,23 @@
 
 
 
-This repository provides a BoTorch/GPyTorch implementation of the BEE-BO acquisition function for Bayesian Optimization.
+This repository provides a BoTorch/GPyTorch implementation of the BEEBO acquisition function for batched Bayesian Optimization.
 
 
 
 ## Installation
 
-To install the package, clone the repository and run
+To install the package, run
 
 ```
-pip install -e .
+pip install beebo
 ```
+
+Alternatively, clone the repository and run `pip install -e.`
 
 ## Usage
 
-The BEE-BO acquisition function is fully compatible with BoTorch and is implemented as an [`AnalyticAcquisitionFunction`](https://botorch.org/api/acquisition.html#analytic-acquisition-function-api). It can be used as follows, using standard BoTorch utilities. 
+The BEE-BO acquisition function is fully compatible with BoTorch and is implemented as an [`AnalyticAcquisitionFunction`](https://botorch.org/api/acquisition.html#analytic-acquisition-function-api). It can be used as follows, using [standard BoTorch utilities](https://botorch.org/docs/getting_started). 
 
 ```python
 from beebo import BatchedEnergyEntropyBO
@@ -33,7 +35,11 @@ amplitude = model.covar_module.outputscale.item() # get the GP's kernel amplitud
 acq_fn = BatchedEnergyEntropyBO(
     model, # a gaussian process model.
     temperature=1.0, 
-    kernel_amplitude=amplitude)
+    kernel_amplitude=amplitude,
+    energy_function='sum', # "sum" for meanBEEBO, "softmax" for maxBEEBO
+    logdet_method='svd', # LinAlg: how to compute log determinants
+    augment_method='naive', # LinAlg: how to perform the train data augmentation
+    )
 
 points, value = optimize_acqf(
     acq_fn, 
@@ -49,20 +55,14 @@ For setting up `model` and `bounds`, please refer to [BoTorch's tutorials](https
 
 The explore-exploit trade-off of BEE-BO is controlled using its temperature parameter. In the code snippet above, we additionally use the kernel amplitude (output scale) to scale the temperature internally, so that it is comparable to the `beta` parameter in the standard Upper Confidence Bound (UCB) acquisition function. When the `kernel_amplitude` is 1.0, the scaling has no effect and you recover the "pure" BEE-BO acquisition function, 
 
-$a(x)=\sum(\mu(x))+T*I(x)$.
+$a(\mathbf{x})=-E(\mathbf{x})+T*I(\mathbf{x})$.
 
 
 ## Experiments
 
-Please see the `benchmark` directory for the code to perform the benchmark experiments from the paper.
+Please see the `benchmark` directory in the repository for the code to perform the benchmark experiments from the paper.
 
 
-## Implementation notes
-
-Log determinants are computed using singular value decomposition (SVD) for numerical stability.
-
-BEE-BO requires temporarily adding the query data points as training data points to the GP model in the forward pass to compute the information gain. GPyTorch offers some functionality for that, such as `set_train_data` or `get_fantasy_model`. In our experiments with GPyTorch 1.11, both these approaches resulted in memory leaks when running with gradients enabled. As a workaround, we duplicate the GP model via deepcopy when initializing the acquisition function, and then set the train data of the duplicated GP before calling it to compute the augmented posterior. This, together with adding the posterior mean multiplied by 0 to the result, seems to be avoiding memory leaks for the current version.  
-Due to these workarounds, the forward method thus may look a bit convoluted. The methods `compute_energy` and `compute_entropy` are not used for above reasons, but show the core operations of the BEE-BO algorithm in a more readable way.
 
 ### Configuring the linear algebra routines for BEE-BO
 
@@ -80,3 +80,10 @@ Due to these workarounds, the forward method thus may look a bit convoluted. The
     - `cholesky` performs a low rank update to the precomputed cholesky decomposition of the train-train covariance, and then computes the posterior covariance via a cholesky solve. In our experiments, this was faster than both the naive approach and the LOVE low-rank update.
     - `get_fantasy_model` uses GPyTorch's `get_fantasy_model` method, which can perform a low rank update when using LOVE, but suffers from a memory leak when using gradients. Also, the low rank update is contingent on a pending patch at https://github.com/cornellius-gp/gpytorch/pull/2494.
 
+
+## Implementation notes
+
+Log determinants are computed using singular value decomposition (SVD) for numerical stability.
+
+BEE-BO requires temporarily adding the query data points as training data points to the GP model in the forward pass to compute the information gain. GPyTorch offers some functionality for that, such as `set_train_data` or `get_fantasy_model`. In our experiments with GPyTorch 1.11, both these approaches resulted in memory leaks when running with gradients enabled. As a workaround, we duplicate the GP model via deepcopy when initializing the acquisition function, and then set the train data of the duplicated GP before calling it to compute the augmented posterior. This, together with adding the posterior mean multiplied by 0 to the result, seems to be avoiding memory leaks for the current version.  
+Due to these workarounds, the forward method thus may look a bit convoluted. The methods `compute_energy` and `compute_entropy` are not used for above reasons, but show the core operations of the BEE-BO algorithm in a more readable way.
