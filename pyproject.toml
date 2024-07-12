@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "beebo"
-version = "0.0.1"
+version = "0.0.2"
 description = "Batched Energy-Entropy acquistion for Bayesian optimization"
 readme = "README.md"
 authors = [{name="Felix Teufel", email="fegt@novonordisk.com"}]
@@ -34,7 +34,7 @@ dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "beebo/__init__.py" = ["{version}"]
 [tool.bumpver]
-current_version = "0.0.1"
+current_version = "0.0.2"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 tag_message = "{new_version}"
