@@ -1,4 +1,4 @@
-# BEE-BO
+# BEEBO
 **Batched Energy-Entropy acquisition for Bayesian Optimization**
 
 ![bee-bo small](https://github.com/fteufel/BEE-BO/assets/56223326/e7b9490c-cd65-4598-a55c-5023ced3ce33)

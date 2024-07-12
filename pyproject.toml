@@ -1,0 +1,48 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "beebo"
+version = "0.0.1"
+description = "Batched Energy-Entropy acquistion for Bayesian optimization"
+readme = "README.md"
+authors = [{name="Felix Teufel", email="fegt@novonordisk.com"}]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "botorch >= 0.9.4",
+    "gpytorch >= 1.11",
+    "scipy >= 1.10.1",
+    "torch >= 2.0.1",
+]
+requires-python = ">=3.9"
+
+
+[project.urls]
+Homepage = "https://https://github.com/fteufel/BEE-BO"
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
+
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"beebo/__init__.py" = ["{version}"]
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+tag_message = "{new_version}"
+tag_scope = "default"
+pre_commit_hook = ""
+post_commit_hook = ""
+commit = true
+tag = true
+push = false
+
+
