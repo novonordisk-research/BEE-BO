@@ -20,7 +20,8 @@ import time
 import random
 
 from beebo import BatchedEnergyEntropyBO
-from problems import EmbeddedHartmann
+from problems import EmbeddedHartmann, RobotPushing, Rover
+from utils.kriging_believer import get_candidates_kriging_believer
 torch.set_default_dtype(torch.float64)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,6 +54,14 @@ def get_test_problem(config):
         test_fn = EmbeddedHartmann(dim=config['dim'], dim_hartmann=6, negate=True)
     elif config['test_function'] == 'powell':
         test_fn = test_functions.Powell(dim=config['dim'], negate=True)
+    elif config['test_function'] == 'robotpushing':
+        if config['dim'] != 14:
+            raise NotImplementedError('Robot pushing only implemented for dim=14')
+        test_fn = RobotPushing(negate=True) # returns distance --> negate to minimize
+    elif config['test_function'] == 'rover':
+        if config['dim'] != 60:
+            raise NotImplementedError('Rover is only implemented for dim=60')
+        test_fn = Rover(negate=True) # returns cost --> negate to minimize
     else:
         raise NotImplementedError(config['test_function'])
 
@@ -67,7 +76,7 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
     point_counter = 0
 
     optima_unit_cube = normalize(optima, bounds) if optima is not None else None
-    optima_unit_cube = optima_unit_cube.to(torch.get_default_dtype())
+    optima_unit_cube = optima_unit_cube.to(torch.get_default_dtype()) if optima_unit_cube is not None else None
 
     all_train_x_raw = torch.zeros(n_points, dim).to(torch.get_default_dtype())
     while point_counter < n_points:
@@ -93,22 +102,46 @@ def get_starting_points(n_points: int, bounds: torch.Tensor, seed: int = 123, op
 
 
 
-def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None):
+def get_acquisition_function(acq_fn, model, config, kernel_amplitude=None, bounds=None):
     if config['acq_fn'] == 'beebo':
-        acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'])
+        acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'], custom_inference=config['custom_inference'])
+    elif config['acq_fn'] == 'sequentialbeebo':
+        acq = BatchedEnergyEntropyBO(model, temperature=config['explore_parameter'], kernel_amplitude=kernel_amplitude, logdet_method=config['logdet_method'], custom_inference=config['custom_inference'])
+    elif config['acq_fn'] == 'maxbeebo':
+        acq = BatchedEnergyEntropyBO(
+            model, 
+            temperature=config['explore_parameter'], 
+            kernel_amplitude=kernel_amplitude, 
+            logdet_method=config['logdet_method'], 
+            custom_inference=config['custom_inference'], 
+            energy_function='softmax',
+            f_max = model.train_targets.max().item(),
+            softmax_beta = 1/(kernel_amplitude **(1/2))
+        )
     elif config['acq_fn'] == 'qucb':
         from botorch.sampling import SobolQMCNormalSampler
         from botorch.acquisition import qUpperConfidenceBound
-        sampler = SobolQMCNormalSampler(1024)
+        sampler = SobolQMCNormalSampler(torch.Size([1024])) # NOTE botorch 0.11.0 needs torch.size
         # NOTE we **2 the explore_param because we want to control the internal beta.sqrt() - 
         # see section in the paper on equivalence of BEE-BO temperature and UCB sqrt(beta)
         acq = qUpperConfidenceBound(model, config['explore_parameter']**2, sampler)
     elif config['acq_fn'] == 'qei':
         from botorch.sampling import SobolQMCNormalSampler
         from botorch.acquisition import qLogExpectedImprovement
-        sampler = SobolQMCNormalSampler(1024)
+        sampler = SobolQMCNormalSampler(torch.Size([1024])) # NOTE botorch 0.11.0 needs torch.size
         best_f = model.train_targets.max().item()
         acq = qLogExpectedImprovement(model, best_f, sampler)
+    elif config['acq_fn'] == 'gibbon':
+        from botorch.acquisition.max_value_entropy_search import qLowerBoundMaxValueEntropy
+        candidate_set = torch.rand(
+            config['gibbon_n_candidates'], config['dim'], device=model.train_inputs[0].device, dtype=model.train_inputs[0].dtype)
+        acq = qLowerBoundMaxValueEntropy(model, candidate_set)
+    elif config['acq_fn'] == 'modifiedgibbon':
+        from utils.modified_gibbon import qModifiedLowerBoundMaxValueEntropy
+        candidate_set = torch.rand(
+            config['gibbon_n_candidates'], config['dim'], device=model.train_inputs[0].device, dtype=model.train_inputs[0].dtype)
+        acq = qModifiedLowerBoundMaxValueEntropy(model, candidate_set)
+        acq.set_batch_size(config['batch_size'])
     else:
         raise NotImplementedError()
 
@@ -151,7 +184,7 @@ def get_candidates(acq, config, bounds, initial_conditions=None):
             gen_candidates= gen_candidates,
             batch_initial_conditions=initial_conditions,
             generator = generator,
-            # seed=config['seed']
+            sequential= True if config['acq_fn'] in  ['gibbon', 'modifiedgibbon', 'sequentialbeebo'] else False,
             )
             
 
@@ -246,7 +279,6 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
         model = SingleTaskGP(train_x.detach(),train_y.detach(), covar_module=kernel)
     else:
         model = SingleTaskGP(train_x.detach(),train_y.detach())
-    gpytorch.settings.max_cholesky_size(2)
 
 
     if torch.get_default_dtype() == torch.float64:
@@ -259,10 +291,11 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
 
     try:
         mll = fit_gpytorch_mll(mll)
-    except RuntimeError as e:
+    except: #RuntimeError as e
         print('Fitting GP failed. Retrying. with torch')
         from botorch.optim.fit import fit_gpytorch_mll_torch
         mll = fit_gpytorch_mll(mll, optimizer=fit_gpytorch_mll_torch)
+    
 
     # print(f'Fitted GP on data: {train_x.shape[0]} points, {train_x.shape[1]} dimensions. Memory usage {torch.cuda.memory_allocated()/1e9} GB')
     # save the model
@@ -286,8 +319,11 @@ def run_one_round(test_problem, train_x: torch.Tensor, train_y: torch.Tensor, co
     elif config['acq_fn'] == 'thompson':
         acq = None
         points = get_thompson_candidates(model, config, n_candidates=config['n_thompson_base_samples'])
+    elif config['acq_fn'] == 'krigingbeliever':
+        acq = None
+        points, values = get_candidates_kriging_believer(model, config, bounds)
     else:
-        acq = get_acquisition_function(config['acq_fn'], model, config, model.covar_module.outputscale.item())
+        acq = get_acquisition_function(config['acq_fn'], model, config, model.covar_module.outputscale.item(), bounds)
 
         points, value = get_candidates(acq, config, bounds)
 
@@ -337,7 +373,7 @@ def run_bo_rounds(config):
         experiment_log.append(point)
         
     
-
+    start_time = time.time()
     for round in tqdm(range(config['n_rounds'])):
 
         
@@ -404,7 +440,7 @@ def run_bo_rounds(config):
         torch.save([model.train_inputs, model.train_targets], os.path.join(config['out_dir'], 'model_round_'+str(round+1)+'_train_data.pt'))
 
 
-
+    config['run_time'] = time.time() - start_time
 
     # make a dataframe from the log
     # save the dataframe to a csv
@@ -412,7 +448,7 @@ def run_bo_rounds(config):
     df = pd.DataFrame(experiment_log)
     df.to_csv(os.path.join(config['out_dir'], 'experiment_log.csv'))
     with open(os.path.join(config['out_dir'], 'config.json'), 'w') as f:
-        json.dump(config, f)
+        json.dump(config, f, indent=4)
 
 
 
@@ -436,6 +472,9 @@ def main():
         'init_min_distance': 0.5,
         'logdet_method': 'svd', 
         'n_thompson_base_samples': 10000,
+        'gibbon_n_candidates': 100000,
+        'custom_inference': False,
+        'run_dir_prefix': 'runs',
     }
     skip=True # skip if output file already exists.
 
@@ -452,7 +491,7 @@ def main():
     random.seed(args.seed)
 
     if config['run_name'] is None:
-        if config['acq_fn'] in ['qei', 'random', 'thompson']:
+        if config['acq_fn'] in ['qei', 'random', 'thompson', 'gibbon', 'modifiedgibbon', 'krigingbeliever', 'jes', 'sequential_thompson']:
             # explore parameter is not used. don't include in run_name
             run_name = f'{config["test_function"]}{config["dim"]}_q{config["batch_size"]}/{config["acq_fn"]}'
         else:
@@ -460,7 +499,7 @@ def main():
     else:
         run_name = config['run_name']
 
-    config['out_dir'] = f'runs_{config["seed"]}/{run_name}'
+    config['out_dir'] = f'{config["run_dir_prefix"]}_{config["seed"]}/{run_name}'
 
 
     print(config['out_dir'])

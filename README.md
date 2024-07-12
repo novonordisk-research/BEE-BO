@@ -63,3 +63,20 @@ Log determinants are computed using singular value decomposition (SVD) for numer
 
 BEE-BO requires temporarily adding the query data points as training data points to the GP model in the forward pass to compute the information gain. GPyTorch offers some functionality for that, such as `set_train_data` or `get_fantasy_model`. In our experiments with GPyTorch 1.11, both these approaches resulted in memory leaks when running with gradients enabled. As a workaround, we duplicate the GP model via deepcopy when initializing the acquisition function, and then set the train data of the duplicated GP before calling it to compute the augmented posterior. This, together with adding the posterior mean multiplied by 0 to the result, seems to be avoiding memory leaks for the current version.  
 Due to these workarounds, the forward method thus may look a bit convoluted. The methods `compute_energy` and `compute_entropy` are not used for above reasons, but show the core operations of the BEE-BO algorithm in a more readable way.
+
+### Configuring the linear algebra routines for BEE-BO
+
+- Log determinants:
+
+   The `BatchedEnergyEntropyBO` constructor accepts a `logdet_method` argument, which can be set to `svd`, `cholesky` ot `torch`.   
+   - The default is `svd`, which is stable, at the expense of being slow.  
+   - `cholesky` exploits the PSD structure by computing the log determinant from a cholesky decomposition, which is fast but can suffer from numerical instability.  
+   - `torch` simply uses PyTorch's `logdet` function, which can also suffer from numerical instability.
+
+- GP augmentation with new training observations:
+
+    The `BatchedEnergyEntropyBO` constructor accepts a `augment_method` argument, which can be set to `naive`, `cholesky` or `get_fantasy_model`.  
+    - The default is `naive`, which simply keeps a second GP and calls `set_train_data` with augmented tensors. This uses default GPytorch infrastructure, does not suffer from any memory leaks, but requires recomputing all caches.  
+    - `cholesky` performs a low rank update to the precomputed cholesky decomposition of the train-train covariance, and then computes the posterior covariance via a cholesky solve. In our experiments, this was faster than both the naive approach and the LOVE low-rank update.
+    - `get_fantasy_model` uses GPyTorch's `get_fantasy_model` method, which can perform a low rank update when using LOVE, but suffers from a memory leak when using gradients. Also, the low rank update is contingent on a pending patch at https://github.com/cornellius-gp/gpytorch/pull/2494.
+
