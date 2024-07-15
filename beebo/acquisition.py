@@ -105,40 +105,47 @@ class EnergyFunction(Enum):
 
 
 class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
-    r"""The BEEBO batch acquisition function. Jointly optimizes a batch of points by minimizing
+    r"""
+    The BEEBO batch acquisition function. Jointly optimizes a batch of points by minimizing
     the free energy of the batch.
 
     Args:
-        model: A fitted single-outcome GP model (must be in batch mode if
-            candidate sets X will be)
-        temperature: A scalar representing the temperature. 
-            higher temperature -> more exploration
-        kernel_amplitude: The amplitude of the kernel. Defaults to 1.0.
+        model (GPyTorch Model): A fitted single-outcome GP model. Must be in batch mode if
+            candidate sets X will be.
+        temperature (float): A scalar representing the temperature. 
+            Higher temperature leads to more exploration.
+        kernel_amplitude (float, optional): The amplitude of the kernel. Defaults to 1.0.
             This is used to bring the temperature to a scale that is comparable to 
             UCB's hyperparameter `beta`.
-        posterior_transform: A PosteriorTransform. If using a multi-output model,
+        posterior_transform (PosteriorTransform, optional): A PosteriorTransform. If using a multi-output model,
             a PosteriorTransform that transforms the multi-output posterior into a
             single-output posterior is required.
-        maximize: If True, consider the problem a maximization problem.
-        logdet_method: The method to use to compute the log determinant of the
+        maximize (bool, optional): If True, consider the problem a maximization problem. Defaults to False.
+        logdet_method (str, optional): The method to use to compute the log determinant of the
             covariance matrix. One of "svd", "cholesky", "torch". Defaults to "svd".
-                - svd: Use the singular value decomposition to compute the log determinant.
-                - cholesky: Use the Cholesky decomposition to compute the log determinant.
-                - torch: Use the torch.logdet function to compute the log determinant.
-        augment_method: The method to use to augment the model with the new points
+        augment_method (str, optional): The method to use to augment the model with the new points
             and computing the posterior covariance.
             One of "naive", "cholesky", "get_fantasy_model". Defaults to "naive".
-                - naive: Adds the new points to the training data and recomputes the
-                    posterior from scratch.
-                - cholesky: Uses a low rank update to the Cholesky decomposition of
-                    the train-train covariance matrix to compute the posterior covariance.
-                - get_fantasy_model: Uses the get_fantasy_model method of GPyTorch
-                    to compute the posterior.
-        energy_function: The energy function to use in the BEE-BO acquisition function.
+        energy_function (str, optional): The energy function to use in the BEE-BO acquisition function.
             One of "softmax", "sum". Defaults to "sum".
-                - softmax: Uses the softmax energy function.
-                - sum: Uses the sum energy function.
         **kwargs: Additional arguments to be passed to the energy function.
+
+    logdet_method options:
+        - "svd": Use the singular value decomposition to compute the log determinant.
+        - "cholesky": Use the Cholesky decomposition to compute the log determinant.
+        - "torch": Use the torch.logdet function to compute the log determinant.
+
+    augment_method options:
+        - "naive": Adds the new points to the training data and recomputes the
+            posterior from scratch.
+        - "cholesky": Uses a low rank update to the Cholesky decomposition of
+            the train-train covariance matrix to compute the posterior covariance.
+        - "get_fantasy_model": Uses the get_fantasy_model method of GPyTorch
+            to compute the posterior.
+
+    energy_function options:
+        - "softmax": Uses the softmax-weighted sum energy function. maxBEEBO mode.
+        - "sum": Uses the mean energy function. meanBEEBO mode.
     """
     def __init__(
         self,
