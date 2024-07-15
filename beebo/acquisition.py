@@ -105,7 +105,8 @@ class EnergyFunction(Enum):
 
 
 class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
-    r"""The BEE-BO batch acquisition function. Jointly optimizes a batch of points by minimizing
+    r"""The BEEBO batch acquisition function. Jointly optimizes a batch of points by minimizing
+    the free energy of the batch.
 
     Args:
         model: A fitted single-outcome GP model (must be in batch mode if

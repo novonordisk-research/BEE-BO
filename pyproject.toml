@@ -33,6 +33,7 @@ dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
 [tool.bumpver.file_patterns]
 "pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
 "beebo/__init__.py" = ["{version}"]
+"docs/conf.py" = ["{release}"]
 [tool.bumpver]
 current_version = "0.0.2"
 version_pattern = "MAJOR.MINOR.PATCH"
