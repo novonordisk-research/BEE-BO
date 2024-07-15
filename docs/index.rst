@@ -7,11 +7,11 @@ BEEBO documentation
 ===================
 
 BEEBO is a family of acquisition functions for Bayesian optimization that natively scale to batched acquisition
-and trade off exploration and exploitation explicitly. The `beebo` package is compatible with BoTorch. 
+and trade off exploration and exploitation explicitly. The :mod:`~beebo` package is compatible with BoTorch. 
 
-Both meanBEEBO and maxBEEBO are implemented as the `BatchedEnergyEntropyBO` class.
+Both meanBEEBO and maxBEEBO are implemented as the :class:`~BatchedEnergyEntropyBO` class.
 
-To use `BatchedEnergyEntropyBO`, you need to follow these steps:
+To use :class:`BatchedEnergyEntropyBO`, you need to follow these steps:
 
 1. Import the class:
    
@@ -19,7 +19,7 @@ To use `BatchedEnergyEntropyBO`, you need to follow these steps:
      
      from beebo import BatchedEnergyEntropyBO
 
-2. Create an instance of `BatchedEnergyEntropyBO`:
+2. Create an instance of :class:`BatchedEnergyEntropyBO``:
    
    .. code-block:: python
 
@@ -66,7 +66,6 @@ To use `BatchedEnergyEntropyBO`, you need to follow these steps:
    :maxdepth: 2
    :caption: Contents:
 
-   beebo/acquisition
    beebo
    
 
