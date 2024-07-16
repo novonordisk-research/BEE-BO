@@ -18,13 +18,38 @@ from .utils.cholesky_inference import GPPosteriorPredictor
 
 
 class LogDetMethod(Enum):
-    """Used to specify the method for computing the log determinant of the covariance matrices."""
+    """Used to specify the method for computing the log determinant of the covariance matrices in the :class:`~BatchedEnergyEntropyBO` acquisition function.
+    
+    SVD
+        Computes the log determinant using singular value decomposition.
+    CHOLESKY
+        Computes the log determinant using the cholesky decomposition, taking advantage of the fact that the covariance matrix is positive definite. This 
+        is not always numerically stable.
+    TORCH
+        Computes the log determinant using the default torch function `torch.logdet`. This is not always numerically stable.
+    
+    """
     SVD = "svd"
     CHOLESKY = "cholesky"
     TORCH = "torch"
 
 class AugmentedPosteriorMethod(Enum):
-    """Used to specify the method for augmenting the model with new points and computing the posterior covariance."""
+    """
+    Used to specify the method for augmenting the GP model with new points 
+    and computing the posterior covariance after augmentation in the :class:`~BatchedEnergyEntropyBO` acquisition function.
+
+    NAIVE
+        We keep a copy of the original model and augment it with the new points using the
+        ``set_train_data`` method each time we evaluate the acquisition function. This is memory safe but slow.
+    CHOLESKY
+        We perform a low rank update to the cholesky decomposition of the training covariance, adding the new points.
+        This is fast, but circumvents the default GPyTorch inference in favor of cholesky-based predictions. Uses
+        :class:`~GPPosteriorPredictor` to compute the augmented covariance.
+    GET_FANTASY_MODEL
+        We use the ``get_fantasy_model`` method of the GP model to get a new model with the new points. This is not memory safe
+        when running with gradients enabled.
+    
+    """
     NAIVE = "naive"
     CHOLESKY = "cholesky"
     GET_FANTASY_MODEL = "get_fantasy_model" # NOTE this isn't memory safe yet
@@ -99,7 +124,18 @@ def softmax_expectation(mvn: MultivariateNormal, a: torch.Tensor, softmax_beta: 
 
 
 class EnergyFunction(Enum):
-    """Used to specify the energy function to be used in the BEE-BO acquisition function."""
+    """Used to specify the energy function to be used in the :class:`~BatchedEnergyEntropyBO` acquisition function.
+    
+    SOFTMAX
+        Implements maxBEEBO. This option will lead the acquisition function to focus more on the point with the highest expected improvement in the batch.
+        If this is chosen, :class:`~BatchedEnergyEntropyBO` accepts the additional arguments ``softmax_beta`` and ``f_max``. 
+        ``softmax_beta`` is a scalar representing the inverse temperature of the softmax function.
+        ``f_max`` is a scalar representing the maximum value of the function to be optimized.
+    SUM
+        Implements meanBEEBO. This option will lead the acquisition function to focus on improving the overall batch.
+
+    
+    """
     SOFTMAX = "softmax"
     SUM = "sum"
 
@@ -122,30 +158,18 @@ class BatchedEnergyEntropyBO(AnalyticAcquisitionFunction):
             single-output posterior is required.
         maximize (bool, optional): If True, consider the problem a maximization problem. Defaults to False.
         logdet_method (str, optional): The method to use to compute the log determinant of the
-            covariance matrix. One of "svd", "cholesky", "torch". Defaults to "svd".
+            covariance matrix. Should be one of the members of the :class:`~LogDetMethod` enum: 
+            ``"svd"``, ``"cholesky"``, or ``"torch"``. Defaults to ``"svd"``.
         augment_method (str, optional): The method to use to augment the model with the new points
-            and computing the posterior covariance.
-            One of "naive", "cholesky", "get_fantasy_model". Defaults to "naive".
-        energy_function (str, optional): The energy function to use in the BEE-BO acquisition function.
-            One of "softmax", "sum". Defaults to "sum".
+            and computing the posterior covariance. Should be one of the members of the :class:`~AugmentedPosteriorMethod` enum:
+            ``"naive"`` or ``"cholesky"``. Defaults to ``"naive"``.
+        energy_function (str, optional): The energy function to use in the BEEBO acquisition function. 
+            Should be a string representing one of the members of the :class:`~EnergyFunction` enum: ``"softmax"`` or ``"sum"``. 
+            "softmax" implements the maxBEEBO and "sum" implements the meanBEEBO. Defaults to ``"sum"``.
         **kwargs: Additional arguments to be passed to the energy function.
 
-    logdet_method options:
-        - "svd": Use the singular value decomposition to compute the log determinant.
-        - "cholesky": Use the Cholesky decomposition to compute the log determinant.
-        - "torch": Use the torch.logdet function to compute the log determinant.
 
-    augment_method options:
-        - "naive": Adds the new points to the training data and recomputes the
-            posterior from scratch.
-        - "cholesky": Uses a low rank update to the Cholesky decomposition of
-            the train-train covariance matrix to compute the posterior covariance.
-        - "get_fantasy_model": Uses the get_fantasy_model method of GPyTorch
-            to compute the posterior.
 
-    energy_function options:
-        - "softmax": Uses the softmax-weighted sum energy function. maxBEEBO mode.
-        - "sum": Uses the mean energy function. meanBEEBO mode.
     """
     def __init__(
         self,
