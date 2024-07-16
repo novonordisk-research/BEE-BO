@@ -44,7 +44,7 @@ class AugmentedPosteriorMethod(Enum):
     CHOLESKY
         We perform a low rank update to the cholesky decomposition of the training covariance, adding the new points.
         This is fast, but circumvents the default GPyTorch inference in favor of cholesky-based predictions. Uses
-        :class:`~GPPosteriorPredictor` to compute the augmented covariance.
+        :class:`~beebo.utils.cholesky_inference.GPPosteriorPredictor` to compute the augmented covariance.
     GET_FANTASY_MODEL
         We use the ``get_fantasy_model`` method of the GP model to get a new model with the new points. This is not memory safe
         when running with gradients enabled.

@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinx.ext.linkcode',
 ]
 
 templates_path = ['_templates']
@@ -77,3 +78,27 @@ intersphinx_mapping = {
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+
+
+from urllib.parse import quote
+
+def linkcode_resolve(domain, info):
+    # print(f"domain={domain}, info={info}")
+    if domain != 'py':
+        return None
+    if not info['module']:
+        return None
+    filename = quote(info['module'].replace('.', '/'))
+    # if not filename.startswith("tests"):
+        # filename = "src/" + filename
+    if "fullname" in info:
+        anchor = info["fullname"]
+        anchor = "#:~:text=" + quote(anchor.split(".")[-1])
+    else:
+        anchor = ""
+
+    # github
+    result = "https://github.com/fteufel/BEE-BO/blob/main/%s.py%s" % (filename, anchor)
+    # print(result)
+    return result
