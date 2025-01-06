@@ -3,7 +3,9 @@
 
 Paper: https://arxiv.org/abs/2410.08804  
 
-![bee-bo small](https://github.com/fteufel/BEE-BO/assets/56223326/e7b9490c-cd65-4598-a55c-5023ced3ce33)
+![bee-bo small](https://github.com/user-attachments/assets/04d49c9d-3b6d-4e75-9fa6-04b63a41b037)
+
+
 
 
 
@@ -19,7 +21,7 @@ To install the package, run
 pip install beebo
 ```
 
-Alternatively, clone the repository and run `pip install -e.`
+Alternatively, clone the repository and run `pip install -e .`
 
 ## Usage
 
