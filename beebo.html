@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>beebo package &mdash; BEEBO 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="beebo.utils package" href="beebo.utils.html" />
+    <link rel="prev" title="BEEBO documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BEEBO
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">beebo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="beebo.utils.html">beebo.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-beebo.acquisition">beebo.acquisition module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod"><code class="docutils literal notranslate"><span class="pre">AugmentedPosteriorMethod</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod.CHOLESKY"><code class="docutils literal notranslate"><span class="pre">AugmentedPosteriorMethod.CHOLESKY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod.GET_FANTASY_MODEL"><code class="docutils literal notranslate"><span class="pre">AugmentedPosteriorMethod.GET_FANTASY_MODEL</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod.NAIVE"><code class="docutils literal notranslate"><span class="pre">AugmentedPosteriorMethod.NAIVE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO"><code class="docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO.compute_energy"><code class="docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO.compute_energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO.compute_entropy"><code class="docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO.compute_entropy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO.forward"><code class="docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO.set_X_pending"><code class="docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO.set_X_pending()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.EnergyFunction"><code class="docutils literal notranslate"><span class="pre">EnergyFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.EnergyFunction.SOFTMAX"><code class="docutils literal notranslate"><span class="pre">EnergyFunction.SOFTMAX</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.EnergyFunction.SUM"><code class="docutils literal notranslate"><span class="pre">EnergyFunction.SUM</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.LogDetMethod"><code class="docutils literal notranslate"><span class="pre">LogDetMethod</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.LogDetMethod.CHOLESKY"><code class="docutils literal notranslate"><span class="pre">LogDetMethod.CHOLESKY</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.LogDetMethod.SVD"><code class="docutils literal notranslate"><span class="pre">LogDetMethod.SVD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.LogDetMethod.TORCH"><code class="docutils literal notranslate"><span class="pre">LogDetMethod.TORCH</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.softmax_expectation"><code class="docutils literal notranslate"><span class="pre">softmax_expectation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.softmax_expectation_a_is_mean"><code class="docutils literal notranslate"><span class="pre">softmax_expectation_a_is_mean()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#beebo.acquisition.stable_softmax"><code class="docutils literal notranslate"><span class="pre">stable_softmax()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-beebo">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">beebo</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">beebo package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="beebo.utils.html">beebo.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-beebo.acquisition">beebo.acquisition module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod"><code class="docutils literal notranslate"><span class="pre">AugmentedPosteriorMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO"><code class="docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.EnergyFunction"><code class="docutils literal notranslate"><span class="pre">EnergyFunction</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.LogDetMethod"><code class="docutils literal notranslate"><span class="pre">LogDetMethod</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.softmax_expectation"><code class="docutils literal notranslate"><span class="pre">softmax_expectation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.softmax_expectation_a_is_mean"><code class="docutils literal notranslate"><span class="pre">softmax_expectation_a_is_mean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#beebo.acquisition.stable_softmax"><code class="docutils literal notranslate"><span class="pre">stable_softmax()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-beebo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BEEBO</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">beebo package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/beebo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="beebo-package">
+<h1>beebo package<a class="headerlink" href="#beebo-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="beebo.utils.html">beebo.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="beebo.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.utils.html#module-beebo.utils.cholesky_inference">beebo.utils.cholesky_inference module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor"><code class="docutils literal notranslate"><span class="pre">GPPosteriorPredictor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor.augmented_covariance"><code class="docutils literal notranslate"><span class="pre">GPPosteriorPredictor.augmented_covariance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor.forward"><code class="docutils literal notranslate"><span class="pre">GPPosteriorPredictor.forward()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor.predict_covar"><code class="docutils literal notranslate"><span class="pre">GPPosteriorPredictor.predict_covar()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor.predict_mean"><code class="docutils literal notranslate"><span class="pre">GPPosteriorPredictor.predict_mean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor.update_chol"><code class="docutils literal notranslate"><span class="pre">GPPosteriorPredictor.update_chol()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.update_covar_one_point"><code class="docutils literal notranslate"><span class="pre">update_covar_one_point()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.utils.html#module-beebo.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-beebo.acquisition">
+<span id="beebo-acquisition-module"></span><h2>beebo.acquisition module<a class="headerlink" href="#module-beebo.acquisition" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="beebo.acquisition.AugmentedPosteriorMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">AugmentedPosteriorMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#AugmentedPosteriorMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=AugmentedPosteriorMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.AugmentedPosteriorMethod" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Used to specify the method for augmenting the GP model with new points
+and computing the posterior covariance after augmentation in the <a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a> acquisition function.</p>
+<dl class="simple">
+<dt>NAIVE</dt><dd><p>We keep a copy of the original model and augment it with the new points using the
+<code class="docutils literal notranslate"><span class="pre">set_train_data</span></code> method each time we evaluate the acquisition function. This is memory safe but slow.</p>
+</dd>
+<dt>CHOLESKY</dt><dd><p>We perform a low rank update to the cholesky decomposition of the training covariance, adding the new points.
+This is fast, but circumvents the default GPyTorch inference in favor of cholesky-based predictions. Uses
+<a class="reference internal" href="beebo.utils.html#beebo.utils.cholesky_inference.GPPosteriorPredictor" title="beebo.utils.cholesky_inference.GPPosteriorPredictor"><code class="xref py py-class docutils literal notranslate"><span class="pre">GPPosteriorPredictor</span></code></a> to compute the augmented covariance.</p>
+</dd>
+<dt>GET_FANTASY_MODEL</dt><dd><p>We use the <code class="docutils literal notranslate"><span class="pre">get_fantasy_model</span></code> method of the GP model to get a new model with the new points. This is not memory safe
+when running with gradients enabled.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.AugmentedPosteriorMethod.CHOLESKY">
+<span class="sig-name descname"><span class="pre">CHOLESKY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cholesky'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=CHOLESKY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.AugmentedPosteriorMethod.CHOLESKY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.AugmentedPosteriorMethod.GET_FANTASY_MODEL">
+<span class="sig-name descname"><span class="pre">GET_FANTASY_MODEL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'get_fantasy_model'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=GET_FANTASY_MODEL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.AugmentedPosteriorMethod.GET_FANTASY_MODEL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.AugmentedPosteriorMethod.NAIVE">
+<span class="sig-name descname"><span class="pre">NAIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'naive'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=NAIVE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.AugmentedPosteriorMethod.NAIVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="beebo.acquisition.BatchedEnergyEntropyBO">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">BatchedEnergyEntropyBO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_amplitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PosteriorTransform</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_pending</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maximize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logdet_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#beebo.acquisition.LogDetMethod" title="beebo.acquisition.LogDetMethod"><span class="pre">LogDetMethod</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'svd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod" title="beebo.acquisition.AugmentedPosteriorMethod"><span class="pre">AugmentedPosteriorMethod</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'naive'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_function</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#beebo.acquisition.EnergyFunction" title="beebo.acquisition.EnergyFunction"><span class="pre">EnergyFunction</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'sum'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#BatchedEnergyEntropyBO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=BatchedEnergyEntropyBO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.BatchedEnergyEntropyBO" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AnalyticAcquisitionFunction</span></code></p>
+<p>The BEEBO batch acquisition function. Jointly optimizes a batch of points by minimizing
+the free energy of the batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>GPyTorch Model</em>) – A fitted single-outcome GP model. Must be in batch mode if
+candidate sets X will be.</p></li>
+<li><p><strong>temperature</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – A scalar representing the temperature.
+Higher temperature leads to more exploration.</p></li>
+<li><p><strong>kernel_amplitude</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – The amplitude of the kernel. Defaults to 1.0.
+This is used to bring the temperature to a scale that is comparable to
+UCB’s hyperparameter <cite>beta</cite>.</p></li>
+<li><p><strong>posterior_transform</strong> (<em>PosteriorTransform</em><em>, </em><em>optional</em>) – A PosteriorTransform. If using a multi-output model,
+a PosteriorTransform that transforms the multi-output posterior into a
+single-output posterior is required.</p></li>
+<li><p><strong>maximize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, consider the problem a maximization problem. Defaults to False.</p></li>
+<li><p><strong>logdet_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The method to use to compute the log determinant of the
+covariance matrix. Should be one of the members of the <a class="reference internal" href="#beebo.acquisition.LogDetMethod" title="beebo.acquisition.LogDetMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">LogDetMethod</span></code></a> enum:
+<code class="docutils literal notranslate"><span class="pre">&quot;svd&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cholesky&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;torch&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;svd&quot;</span></code>.</p></li>
+<li><p><strong>augment_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The method to use to augment the model with the new points
+and computing the posterior covariance. Should be one of the members of the <a class="reference internal" href="#beebo.acquisition.AugmentedPosteriorMethod" title="beebo.acquisition.AugmentedPosteriorMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">AugmentedPosteriorMethod</span></code></a> enum:
+<code class="docutils literal notranslate"><span class="pre">&quot;naive&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;cholesky&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;naive&quot;</span></code>.</p></li>
+<li><p><strong>energy_function</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The energy function to use in the BEEBO acquisition function.
+Should be a string representing one of the members of the <a class="reference internal" href="#beebo.acquisition.EnergyFunction" title="beebo.acquisition.EnergyFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnergyFunction</span></code></a> enum: <code class="docutils literal notranslate"><span class="pre">&quot;softmax&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;sum&quot;</span></code>.
+“softmax” implements the maxBEEBO and “sum” implements the meanBEEBO. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;sum&quot;</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments to be passed to the energy function.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Base constructor for analytic acquisition functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – A fitted single-outcome model.</p></li>
+<li><p><strong>posterior_transform</strong> – A PosteriorTransform. If using a multi-output model,
+a PosteriorTransform that transforms the multi-output posterior into a
+single-output posterior is required.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.acquisition.BatchedEnergyEntropyBO.compute_energy">
+<span class="sig-name descname"><span class="pre">compute_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/beebo/acquisition.html#BatchedEnergyEntropyBO.compute_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=compute_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.BatchedEnergyEntropyBO.compute_energy" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the energy of the candidate set X.
+:param X: A <cite>(b1 x … bk) x q x d</cite>-dim batched tensor of <cite>d</cite>-dim design points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <cite>(b1 x … bk)</cite>-dim tensor of BOSS values at the
+given design points <cite>X</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.acquisition.BatchedEnergyEntropyBO.compute_entropy">
+<span class="sig-name descname"><span class="pre">compute_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/beebo/acquisition.html#BatchedEnergyEntropyBO.compute_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=compute_entropy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.BatchedEnergyEntropyBO.compute_entropy" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the energy of the candidate set X.
+:param X: A <cite>(b1 x … bk) x q x d</cite>-dim batched tensor of <cite>d</cite>-dim design points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <cite>(b1 x … bk)</cite>-dim tensor of information gain values at the
+given design points <cite>X</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.acquisition.BatchedEnergyEntropyBO.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="_modules/beebo/acquisition.html#BatchedEnergyEntropyBO.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.BatchedEnergyEntropyBO.forward" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the free energy of the candidate set X.
+:param X: A <cite>(b1 x … bk) x q x d</cite>-dim batched tensor of <cite>d</cite>-dim design points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A <cite>(b1 x … bk)</cite>-dim tensor of BOSS values at the
+given design points <cite>X</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.acquisition.BatchedEnergyEntropyBO.set_X_pending">
+<span class="sig-name descname"><span class="pre">set_X_pending</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_pending</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="_modules/beebo/acquisition.html#BatchedEnergyEntropyBO.set_X_pending"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=set_X_pending"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.BatchedEnergyEntropyBO.set_X_pending" title="Link to this definition"></a></dt>
+<dd><p>Informs the acquisition function about pending design points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X_pending</strong> – <cite>n x d</cite> Tensor with <cite>n</cite> <cite>d</cite>-dim design points that have
+been submitted for evaluation but have not yet been evaluated.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="beebo.acquisition.EnergyFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">EnergyFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#EnergyFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=EnergyFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.EnergyFunction" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Used to specify the energy function to be used in the <a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a> acquisition function.</p>
+<dl class="simple">
+<dt>SOFTMAX</dt><dd><p>Implements maxBEEBO. This option will lead the acquisition function to focus more on the point with the highest expected improvement in the batch.
+If this is chosen, <a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a> accepts the additional arguments <code class="docutils literal notranslate"><span class="pre">softmax_beta</span></code> and <code class="docutils literal notranslate"><span class="pre">f_max</span></code>.
+<code class="docutils literal notranslate"><span class="pre">softmax_beta</span></code> is a scalar representing the inverse temperature of the softmax function.
+<code class="docutils literal notranslate"><span class="pre">f_max</span></code> is a scalar representing the maximum value of the function to be optimized.</p>
+</dd>
+<dt>SUM</dt><dd><p>Implements meanBEEBO. This option will lead the acquisition function to focus on improving the overall batch.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.EnergyFunction.SOFTMAX">
+<span class="sig-name descname"><span class="pre">SOFTMAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'softmax'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=SOFTMAX"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.EnergyFunction.SOFTMAX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.EnergyFunction.SUM">
+<span class="sig-name descname"><span class="pre">SUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'sum'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=SUM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.EnergyFunction.SUM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="beebo.acquisition.LogDetMethod">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">LogDetMethod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#LogDetMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=LogDetMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.LogDetMethod" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Used to specify the method for computing the log determinant of the covariance matrices in the <a class="reference internal" href="#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a> acquisition function.</p>
+<dl class="simple">
+<dt>SVD</dt><dd><p>Computes the log determinant using singular value decomposition.</p>
+</dd>
+<dt>CHOLESKY</dt><dd><p>Computes the log determinant using the cholesky decomposition, taking advantage of the fact that the covariance matrix is positive definite. This
+is not always numerically stable.</p>
+</dd>
+<dt>TORCH</dt><dd><p>Computes the log determinant using the default torch function <cite>torch.logdet</cite>. This is not always numerically stable.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.LogDetMethod.CHOLESKY">
+<span class="sig-name descname"><span class="pre">CHOLESKY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cholesky'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=CHOLESKY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.LogDetMethod.CHOLESKY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.LogDetMethod.SVD">
+<span class="sig-name descname"><span class="pre">SVD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'svd'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=SVD"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.LogDetMethod.SVD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="beebo.acquisition.LogDetMethod.TORCH">
+<span class="sig-name descname"><span class="pre">TORCH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'torch'</span></em><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=TORCH"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.LogDetMethod.TORCH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="beebo.acquisition.softmax_expectation">
+<span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">softmax_expectation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultivariateNormal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#softmax_expectation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=softmax_expectation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.softmax_expectation" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="beebo.acquisition.softmax_expectation_a_is_mean">
+<span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">softmax_expectation_a_is_mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mvn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">softmax_beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#softmax_expectation_a_is_mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=softmax_expectation_a_is_mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.softmax_expectation_a_is_mean" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="beebo.acquisition.stable_softmax">
+<span class="sig-prename descclassname"><span class="pre">beebo.acquisition.</span></span><span class="sig-name descname"><span class="pre">stable_softmax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/acquisition.html#stable_softmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/acquisition.py#:~:text=stable_softmax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.acquisition.stable_softmax" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-beebo">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-beebo" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="BEEBO documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="beebo.utils.html" class="btn btn-neutral float-right" title="beebo.utils package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, F Teufel, C Stahlhut, J Ferkinghoff-Borg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

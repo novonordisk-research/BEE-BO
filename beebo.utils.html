@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>beebo.utils package &mdash; BEEBO 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="beebo" href="modules.html" />
+    <link rel="prev" title="beebo package" href="beebo.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BEEBO
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="beebo.html">beebo package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="beebo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">beebo.utils package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-beebo.utils.cholesky_inference">beebo.utils.cholesky_inference module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-beebo.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#module-beebo.acquisition">beebo.acquisition module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#module-beebo">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">beebo</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="beebo.html">beebo package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="beebo.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">beebo.utils package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="beebo.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="beebo.html#module-beebo.acquisition">beebo.acquisition module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="beebo.html#module-beebo">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BEEBO</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="beebo.html">beebo package</a></li>
+      <li class="breadcrumb-item active">beebo.utils package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/beebo.utils.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="beebo-utils-package">
+<h1>beebo.utils package<a class="headerlink" href="#beebo-utils-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-beebo.utils.cholesky_inference">
+<span id="beebo-utils-cholesky-inference-module"></span><h2>beebo.utils.cholesky_inference module<a class="headerlink" href="#module-beebo.utils.cholesky_inference" title="Link to this heading"></a></h2>
+<p>Do cholesky-based GP predictions, allow for low-rank updates.</p>
+<p>GPytorch does not support low-rank updates with Cholesky as far as I can tell.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.GPPosteriorPredictor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">beebo.utils.cholesky_inference.</span></span><span class="sig-name descname"><span class="pre">GPPosteriorPredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">covar_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#GPPosteriorPredictor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=GPPosteriorPredictor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.GPPosteriorPredictor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A convenience class for computing posterior covariances of a GP.
+This avoids using GPytorch’s default forward pass so that we can
+do cholesky-based predictions and low rank updates.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.GPPosteriorPredictor.augmented_covariance">
+<span class="sig-name descname"><span class="pre">augmented_covariance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#GPPosteriorPredictor.augmented_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=augmented_covariance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.GPPosteriorPredictor.augmented_covariance" title="Link to this definition"></a></dt>
+<dd><p>Add new_X to the training set, then compute posterior covariance of new_X.
+Use low rank update to avoid recomputing the entire cholesky decomposition.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.GPPosteriorPredictor.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#GPPosteriorPredictor.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.GPPosteriorPredictor.forward" title="Link to this definition"></a></dt>
+<dd><p>Get mean and covariance of the GP at X.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.GPPosteriorPredictor.predict_covar">
+<span class="sig-name descname"><span class="pre">predict_covar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_train_covar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#GPPosteriorPredictor.predict_covar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=predict_covar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.GPPosteriorPredictor.predict_covar" title="Link to this definition"></a></dt>
+<dd><p>Basic code taken from exact_predictive_covar in GPytorch.</p>
+<p>NOTE this supports both batch mode (b,q,d) and single mode (q,d).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.GPPosteriorPredictor.predict_mean">
+<span class="sig-name descname"><span class="pre">predict_mean</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_train_covar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#GPPosteriorPredictor.predict_mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=predict_mean"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.GPPosteriorPredictor.predict_mean" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.GPPosteriorPredictor.update_chol">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">update_chol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#GPPosteriorPredictor.update_chol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=update_chol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.GPPosteriorPredictor.update_chol" title="Link to this definition"></a></dt>
+<dd><p>Update cholesky decomposition of M to M_aug.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>L</strong> (<em>np.ndarray</em>) – Cholesky decomposition of M (n, n) / (b, n, n)</p></li>
+<li><p><strong>B</strong> (<em>np.ndarray</em>) – old-new covar (n, q) / (b, n, q)</p></li>
+<li><p><strong>C</strong> (<em>np.ndarray</em>) – new-new covar (q, q) / (b, q, q)</p></li>
+<li><p><strong>NOTE</strong> – C needs to include the noise on the diagonal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cholesky decomposition of M_aug (n+q, n+q) / (b, n+q, n+q)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>L_aug</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="beebo.utils.cholesky_inference.update_covar_one_point">
+<span class="sig-prename descclassname"><span class="pre">beebo.utils.cholesky_inference.</span></span><span class="sig-name descname"><span class="pre">update_covar_one_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">covar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_augmented</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_x_idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/beebo/utils/cholesky_inference.html#update_covar_one_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="reference external" href="https://github.com/fteufel/BEE-BO/blob/main/beebo/utils/cholesky_inference.py#:~:text=update_covar_one_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#beebo.utils.cholesky_inference.update_covar_one_point" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-beebo.utils">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-beebo.utils" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="beebo.html" class="btn btn-neutral float-left" title="beebo package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="beebo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, F Teufel, C Stahlhut, J Ferkinghoff-Borg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

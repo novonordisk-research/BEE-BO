@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BEEBO documentation &mdash; BEEBO 0.0.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=e3a6060d"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="beebo package" href="beebo.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            BEEBO
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="beebo.html">beebo package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">beebo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">BEEBO</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BEEBO documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="beebo-documentation">
+<h1>BEEBO documentation<a class="headerlink" href="#beebo-documentation" title="Link to this heading"></a></h1>
+<p>BEEBO is a family of acquisition functions for Bayesian optimization that natively scale to batched acquisition
+and trade off exploration and exploitation explicitly. The <a class="reference internal" href="beebo.html#module-beebo" title="beebo"><code class="xref py py-mod docutils literal notranslate"><span class="pre">beebo</span></code></a> package is compatible with BoTorch.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>To install BEEBO, you can use pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>beebo
+</pre></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>Both meanBEEBO and maxBEEBO are implemented as the <a class="reference internal" href="beebo.html#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a> class.</p>
+<p>To use <a class="reference internal" href="beebo.html#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a>, you need to follow these steps:</p>
+<ol class="arabic">
+<li><p>Import the class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">beebo</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatchedEnergyEntropyBO</span>
+</pre></div>
+</div>
+</li>
+<li><p>Create an instance of <a class="reference internal" href="beebo.html#beebo.acquisition.BatchedEnergyEntropyBO" title="beebo.acquisition.BatchedEnergyEntropyBO"><code class="xref py py-class docutils literal notranslate"><span class="pre">BatchedEnergyEntropyBO</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># you need to set up a GP model first. Nothing special here - just a standard BoTorch setup.</span>
+
+<span class="n">amplitude</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">covar_module</span><span class="o">.</span><span class="n">outputscale</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="c1"># get the GP&#39;s kernel amplitude</span>
+
+<span class="n">beebo</span> <span class="o">=</span> <span class="n">BatchedEnergyEntropyBO</span><span class="p">(</span>
+ <span class="n">model</span><span class="p">,</span> <span class="c1"># a gaussian process model.</span>
+ <span class="n">temperature</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+ <span class="n">kernel_amplitude</span><span class="o">=</span><span class="n">amplitude</span><span class="p">,</span> <span class="c1"># used for scaling the temperature.</span>
+ <span class="n">energy_function</span><span class="o">=</span><span class="s1">&#39;sum&#39;</span><span class="p">,</span> <span class="c1"># &quot;sum&quot; for meanBEEBO, &quot;softmax&quot; for maxBEEBO</span>
+ <span class="n">logdet_method</span><span class="o">=</span><span class="s1">&#39;svd&#39;</span><span class="p">,</span> <span class="c1"># LinAlg: how to compute log determinants</span>
+ <span class="n">augment_method</span><span class="o">=</span><span class="s1">&#39;naive&#39;</span><span class="p">,</span> <span class="c1"># LinAlg: how to perform the train data augmentation</span>
+ <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Use BoTorch to optimize the acquisition function. Standard BoTorch parameters need to be set.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">botorch.optim.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize_acqf</span>
+
+<span class="n">points</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">optimize_acqf</span><span class="p">(</span>
+ <span class="n">acq_fn</span><span class="p">,</span>
+ <span class="n">q</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="c1"># the batch size</span>
+ <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="c1"># the bounds of the optimization problem</span>
+ <span class="c1"># botorch hyperparameters for optimization</span>
+ <span class="n">num_restarts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+ <span class="n">raw_samples</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+ <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="beebo.html">beebo package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#module-beebo.acquisition">beebo.acquisition module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html#module-beebo">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">beebo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="beebo.html">beebo package</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="beebo.html" class="btn btn-neutral float-right" title="beebo package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, F Teufel, C Stahlhut, J Ferkinghoff-Borg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
